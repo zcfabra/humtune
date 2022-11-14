@@ -7,8 +7,7 @@ import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
 
 import React, { useEffect, useRef, useState } from 'react'
 import {DDSP, SPICE} from "@magenta/music"
-
-
+import { encodeWAV } from '../utils'
 
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
@@ -51,6 +50,8 @@ const addAudioElement = async (blob: Blob)=>{
   setSoundInput(url) 
 }
 
+
+
 const thing = async ()=>{
   console.log("AUDIOREF: ",audioRef.current?.baseURI)
   console.log("AUDIO DATA: ", soundInput)
@@ -63,24 +64,24 @@ const thing = async ()=>{
     
     
     const out = await ddspModel!.synthesize(features);
-    console.log(out)
-    
-    let blob: Blob = new Blob([new Uint8Array(out.buffer, out.byteOffset, out.byteLength)] , {type: "audio/webm;codecs=opus"})
-    console.log(blob)
-    let resBuf = URL.createObjectURL(blob);
-    console.log(resBuf);
-    setResultBuffer(resBuf);
+
+    const encoded = encodeWAV(out, 48000)
+
+    let blob = new Blob([encoded], {type: "audio/wav"}), url = URL.createObjectURL(blob);
+    console.log(blob);
+    console.log(url) 
+    setResultBuffer(url);
   }
 
 }
 return (
-      <div className='w-full h-screen bg-blue-500 flex flex-col items-center'>
-        <AudioRecorder onRecordingComplete={addAudioElement}/>
-        {soundInput && <div>
-          <audio controls={true} ref={audioRef}src={soundInput}></audio>
-          <button onClick={()=>setSoundInput(null)}>X</button>
-          <button onClick={()=>thing()}>Do the thing</button>
-          </div>}
+      <div className='w-full h-screen bg-blue-500 flex flex-col items-center pt-24'>
+        {soundInput ? <div className='flex flex-col items-center'>
+          <audio className="my-8"controls={true} ref={audioRef}src={soundInput}></audio>
+          {/* <button onClick={()=>setSoundInput(null)}>X</button> */}
+          <button className='w-32 mb-8 h-12 bg-orange-500 rounded-md text-white font-medium' onClick={()=>thing()}>Do the thing</button>
+          </div> :         <AudioRecorder onRecordingComplete={addAudioElement}/>
+}
           {resultBuffer && 
           <audio controls={true} >
             <source src={resultBuffer} type="audio/webm;codescs=opus"/>
