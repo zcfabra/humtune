@@ -10,6 +10,7 @@ import {DDSP, SPICE} from "@magenta/music"
 import { encodeWAV } from '../utils'
 import TrackView from '../components/trackview'
 import { applySustainControlChanges } from '@magenta/music/esm/core/sequences'
+import PianoRoll from '../components/pianoroll'
 
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
@@ -17,6 +18,7 @@ const Home: NextPage = () => {
 
   const [tracks, setTracks] = useState<AudioBuffer[]>([]);
   const [resultBuffer, setResultBuffer] = useState<string | null>();
+  const [showPianoRoll, setShowPianoRoll] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [bpm, setBpm] = useState<number>(75);
@@ -67,7 +69,7 @@ const net = async ()=>{
     return;
   } else {
     const encoded = encodeWAV(out, tracks[selected!].sampleRate);
-    const newAudioBuffer = await globalContext!.decodeAudioData(encoded.buffer as ArrayBuffer);
+    const newAudioBuffer = await globalContext!.decodeAudioData(encoded.buffer);
     setTracks(prev=>{
       prev[selected!] = newAudioBuffer!;
       return [...prev] 
@@ -94,6 +96,7 @@ return (
             </audio>} */}
 
             <TrackView selected={selected} setSelected={setSelected} bpm={bpm}globalContext={globalContext!}tracks={tracks}></TrackView>
+            <PianoRoll/>
       </div>
     )
 

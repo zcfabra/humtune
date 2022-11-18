@@ -66,12 +66,12 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
                 <div className='w-1/12 bg-black'></div>
                 <div className='w-11/12 bg-black flex flex-row'>
                     {[...Array(100)].map((i, ix)=>(
-                        <span className={`w-[20px] border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-4" : "border-gray-900"}`}></span>
+                        <span key={ix}className={`w-[20px] border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
                     ))}
                 </div>
             </div>
             {tracks.map((i, ix)=>(
-                <div className='w-full h-28 bg-gray-900 flex flex-row items-center'>
+                <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
                     <div className='w-1/12 h-full bg-gray-900 text-white'>
                         <span>{i.duration}</span>
                     </div>
