@@ -13,9 +13,14 @@ import TrackView from '../components/trackview'
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
-  const [savedBuffer, setSavedBuffer] = useState<AudioBuffer[]>([]);
+
+  const [savedBuffers, setSavedBuffers] = useState<AudioBuffer[]>([]);
   const [resultBuffer, setResultBuffer] = useState<string | null>();
-  const audioRef = useRef<HTMLAudioElement>(null);  
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [bpm, setBpm] = useState<number>(75);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [globalContext, setGlobalContext] = useState<AudioContext>();
   useEffect(()=>{
 
     
@@ -30,22 +35,24 @@ const Home: NextPage = () => {
       setModel(spice);
       console.log(spice);
 
+      const ctx = new AudioContext();
+       ctx.resume();
+      setGlobalContext(ctx);
+
   })();
     
   }, [])
 // https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/trumpet/group1-shard1of1.bin
 const [soundInput, setSoundInput] = useState<string | null>();
-const handleUpload = (e: React.ChangeEvent<HTMLInputElement>)=>{
-  console.log(e.target.files);
-}  
+
 const addAudioElement = async (blob: Blob)=>{
-  const ctx = new AudioContext();
-  console.log(blob)
-  
+  console.log("*****")
+  // const ctx = new AudioContext();
+  // console.log(blob)
   let buf = await blob.arrayBuffer();
-  let audbuf =  await ctx.decodeAudioData(buf);
+  let audbuf =  await globalContext!.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
-  setSavedBuffer(prev=>[...prev , audbuf]);
+  setSavedBuffers(prev=>[...prev , audbuf]);
   const url = URL.createObjectURL(blob);
   console.log("--------",url)
   setSoundInput(url) 
@@ -76,24 +83,24 @@ const addAudioElement = async (blob: Blob)=>{
 
 // }
 return (
-      <div className='w-full h-screen bg-blue-500 flex flex-col items-center pt-24'>
-        <h1 className='font-bold text-6xl text-white mb-8'>Can't Play Trumpet?</h1>
-        <div className='absolute top-0 left-0 min-w-24 h-24 bg-orange-500 flex flex-col items-center justify-center'>
+      <div className='w-full h-screen bg-gray-900 flex flex-col items-center pt-24'>
+        <div className='absolute top-0 left-0 ml-8 h-24 flex flex-col items-center justify-center'>
+
           <AudioRecorder onRecordingComplete={addAudioElement}/>
         </div>
 
         {soundInput && <div className='flex flex-col items-center'>
-          <audio className="my-8"controls={true} ref={audioRef}src={soundInput}></audio>
+          {/* <audio className="my-8"controls={true} ref={audioRef}src={soundInput}></audio> */}
           {/* <button onClick={()=>setSoundInput(null)}>X</button> */}
-          <button className='w-32 mb-8 h-12 bg-orange-500 rounded-md text-white font-medium'>Do the thing</button>
+          {/* <button className='w-32 mb-8 h-12 bg-orange-500 rounded-md text-white font-medium'>Do the thing</button> */}
           </div>         
 }
-          {resultBuffer && 
-          <audio controls={true} >
-            <source src={resultBuffer} type="audio/webm;codescs=opus"/>
-            </audio>}
+          {/* {resultBuffer && 
+          // <audio controls={true} >
+            // <source src={resultBuffer} type="audio/webm;codescs=opus"/>
+            </audio>} */}
 
-            <TrackView tracks={savedBuffer}></TrackView>
+            <TrackView selected={selected} setSelected={setSelected} bpm={bpm}globalContext={globalContext!}tracks={savedBuffers}></TrackView>
       </div>
     )
 
