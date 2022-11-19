@@ -81,7 +81,7 @@ return (
       <div className='w-full h-screen bg-gray-900 flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
           <AudioRecorder onRecordingComplete={addAudioElement}/>
-          { selected != null && tracks.length !=0 && <button onClick={net}className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Do</button>}
+          { selected != null && tracks.length !=0 && <button onClick={net}className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>}
         </div>
 
         {soundInput && <div className='flex flex-col items-center'>
@@ -96,7 +96,7 @@ return (
             </audio>} */}
 
             <TrackView selected={selected} setSelected={setSelected} bpm={bpm}globalContext={globalContext!}tracks={tracks}></TrackView>
-            <PianoRoll/>
+            <PianoRoll showPianoRoll={showPianoRoll} setShowPianoRoll={setShowPianoRoll}/>
       </div>
     )
 

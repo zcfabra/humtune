@@ -1,4 +1,7 @@
+
 import React, { useEffect, useRef, useState } from 'react'
+import { generatePathData } from '../drawwaveform';
+import Waveform from './waveform';
 
 interface TrackViewProps {
 
@@ -16,6 +19,10 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
     
     const [currentMix, setCurrentMix] = useState<AudioBufferSourceNode>()
     const masterMixRef = useRef<HTMLAudioElement>(null);
+    // const svgRef = useRef<SVGPathElement>(null);
+
+
+    
     const playAll = async ()=>{
 
         globalContext.resume();
@@ -55,6 +62,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
         console.log("Got here")
 
     }
+
   return (
     <div className='w-full bg-black h-full flex flex-col items-center'>
         <div className='w-full h-16 border-b border-black flex flex-row justify-center items-center'>
@@ -64,22 +72,14 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
         <div className='w-full'>
             <div className='w-full h-12 flex  flex-row'>
                 <div className='w-1/12 bg-black'></div>
-                <div className='w-11/12 bg-black flex flex-row'>
+                <div className='w-11/12 bg-black overflow-x-scroll'>
                     {[...Array(100)].map((i, ix)=>(
-                        <span key={ix}className={`w-[20px] border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
+                        <span key={ix}className={`mx-4 border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
                     ))}
                 </div>
             </div>
             {tracks.map((i, ix)=>(
-                <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-                    <div className='w-1/12 h-full bg-gray-900 text-white'>
-                        <span>{i.duration}</span>
-                    </div>
-                    <div className='w-11/12 bg-black h-full border border-gray-900'>
-                        <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${Math.floor(i.duration) * 100}px`}} className={`h-full cursor-pointer  ${selected == ix ? "bg-purple-500" : "bg-orange-500"}`}></div>
-                    </div>
-                    {/* <div key={ix} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} className={`h-16 rounded-md cursor-pointer ${selected == ix ? "bg-purple-500" : "bg-orange-400"} ${selected==ix ? "border-purple-300" : "border-orange-300"} border-2 `} style={{width: `${i.length % 1000}px`}}>{JSON.stringify(i.length)}</div> */}
-                </div>
+                <Waveform i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
             ))}
 
         </div>
