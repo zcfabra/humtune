@@ -1,11 +1,15 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { generatePathData } from '../drawwaveform';
+import MidiForm, { MidiNoteSequence } from './midiform';
 import Waveform from './waveform';
+import * as Tone from "tone"
+import { NoteSequence } from '@magenta/music';
+import { DEFAULT_SAMPLE_RATE } from '../pages';
 
 interface TrackViewProps {
 
-    tracks: AudioBuffer[],
+    tracks: (AudioBuffer | MidiNoteSequence)[],
     globalContext: AudioContext,
     bpm: number,
     selected: number | null,
@@ -14,52 +18,69 @@ interface TrackViewProps {
 
 const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selected, setSelected}) => {
 
-
-
-    
+    useEffect(()=>{
+        setSynth(new Tone.Synth())
+    },[])
     const [currentMix, setCurrentMix] = useState<AudioBufferSourceNode>()
     const masterMixRef = useRef<HTMLAudioElement>(null);
+    const [synth, setSynth ] = useState<Tone.Synth>()
     // const svgRef = useRef<SVGPathElement>(null);
 
+    const playSynth = (track:MidiNoteSequence)=>{
 
+            //play a middle 'C' for the duration of an 8th note
+                if (synth){
+                    synth.toDestination();
+                    const now = Tone.now();
+                  let offset = 0;
+                  
+                  Tone.start();
+                  for (let each of track.data){
+                      if (each){
+                          synth.triggerAttackRelease(each, "32n",now + offset)
+                        }
+                        offset+=0.25
+                    }
+                }
+            
+    }
     
     const playAll = async ()=>{
 
         globalContext.resume();
-        console.log("1")
-
         let maxLen: number = 0;
-        for (let track of tracks){
-            if (track.length > maxLen){
-                maxLen = track.length;
+        for (let track of tracks){ // currently, ignores midi sequences; may need to change later
+            if (track instanceof AudioBuffer){
+                if (track.length > maxLen){
+                    maxLen = track.length;
+                }
             }
         }
-        console.log("2")
-        let bufferSource = globalContext.createBuffer(1, maxLen, tracks[0].sampleRate);
-        console.log("3")
+        let bufferSource = globalContext.createBuffer(1, maxLen > 0 ? maxLen : 10000, DEFAULT_SAMPLE_RATE);
         let buffer = bufferSource.getChannelData(0);
-        console.log("4")
         for (let track of tracks){
+            if (track instanceof AudioBuffer) {
                 let trackBuffer = track.getChannelData(0);
                 for (let i = 0; i < trackBuffer.length; i++){
                     buffer[i] += trackBuffer[i];
                 }
-            console.log("5") 
-            }    
+            } else {
+                console.log("CALLED SYNTH");
+                console.log(track)
+                Tone.start();
+                playSynth(track)
+            }
+        }    
         
         
-        console.log("6")
-
+        
         let finalMix = globalContext!.createBufferSource();
-        console.log("7")
         finalMix.buffer = bufferSource;
-        console.log("8")
         finalMix.connect(globalContext.destination);
-        console.log("9")
         await globalContext.resume();
         setCurrentMix(finalMix);
         finalMix.start();
-        console.log("Got here")
+        Tone.start();
 
     }
 
@@ -78,9 +99,13 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
                     ))}
                 </div>
             </div>
-            {tracks.map((i, ix)=>(
-                <Waveform i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
-            ))}
+            {tracks.map((i, ix)=>{
+                return i instanceof AudioBuffer
+                ?
+                 <Waveform i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
+                :
+                <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
+            })}
 
         </div>
     </div>
