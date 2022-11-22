@@ -9,11 +9,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import {DDSP, NoteSequence, SPICE} from "@magenta/music"
 import { encodeWAV } from '../utils'
 import TrackView from '../components/trackview'
-import { applySustainControlChanges } from '@magenta/music/esm/core/sequences'
 import PianoRoll from '../components/pianoroll'
 import { MidiNoteSequence } from '../components/midiform'
 import { isMidiSequence } from '../typechecks'
-export const DEFAULT_SAMPLE_RATE = 48000;
+export const DEFAULT_SAMPLE_RATE = 44100;
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
@@ -27,6 +26,7 @@ const Home: NextPage = () => {
   const [selected, setSelected] = useState<number | null>(null);
   const [globalContext, setGlobalContext] = useState<AudioContext>();
   useEffect(()=>{
+      
 
     
     (async ()=>{

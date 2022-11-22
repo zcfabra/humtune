@@ -4,8 +4,9 @@ import { generatePathData } from '../drawwaveform';
 import MidiForm, { MidiNoteSequence } from './midiform';
 import Waveform from './waveform';
 import * as Tone from "tone"
-import { NoteSequence } from '@magenta/music';
+import { NoteSequence, sequenceProtoToMidi } from '@magenta/music';
 import { DEFAULT_SAMPLE_RATE } from '../pages';
+import { isMidiSequence } from '../typechecks';
 
 interface TrackViewProps {
 
@@ -18,36 +19,26 @@ interface TrackViewProps {
 
 const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selected, setSelected}) => {
 
-    useEffect(()=>{
-        setSynth(new Tone.Synth())
-    },[])
+   
     const [currentMix, setCurrentMix] = useState<AudioBufferSourceNode>()
     const masterMixRef = useRef<HTMLAudioElement>(null);
-    const [synth, setSynth ] = useState<Tone.Synth>()
+    const [synth, setSynths ] = useState<Tone.Synth>();
+    const [player, setPlayer] = useState<Tone.Player>();
     // const svgRef = useRef<SVGPathElement>(null);
 
-    const playSynth = (track:MidiNoteSequence)=>{
+    useEffect(()=>{
+        setSynths(new Tone.Synth().toDestination())
+        setPlayer(new Tone.Player().toDestination())
+    },[])
 
-            //play a middle 'C' for the duration of an 8th note
-                if (synth){
-                    synth.toDestination();
-                    const now = Tone.now();
-                  let offset = 0;
-                  
-                  Tone.start();
-                  for (let each of track.data){
-                      if (each){
-                          synth.triggerAttackRelease(each, "32n",now + offset)
-                        }
-                        offset+=0.25
-                    }
-                }
-            
-    }
     
     const playAll = async ()=>{
+        Tone.Transport.stop()
+        Tone.start()
+        // Tone.Transport.seconds = 0;
 
-        globalContext.resume();
+
+        // globalContext.resume();
         let maxLen: number = 0;
         for (let track of tracks){ // currently, ignores midi sequences; may need to change later
             if (track instanceof AudioBuffer){
@@ -56,31 +47,60 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
                 }
             }
         }
-        let bufferSource = globalContext.createBuffer(1, maxLen > 0 ? maxLen : 10000, DEFAULT_SAMPLE_RATE);
+        let bufferSource = globalContext.createBuffer(1, maxLen > 0 ? maxLen : 1000000, DEFAULT_SAMPLE_RATE);
         let buffer = bufferSource.getChannelData(0);
+        // let synth = new Tone.Synth().toDestination();
         for (let track of tracks){
             if (track instanceof AudioBuffer) {
                 let trackBuffer = track.getChannelData(0);
                 for (let i = 0; i < trackBuffer.length; i++){
                     buffer[i] += trackBuffer[i];
                 }
-            } else {
-                console.log("CALLED SYNTH");
-                console.log(track)
-                Tone.start();
-                playSynth(track)
+            } else if (isMidiSequence(track)) {
+                // let synthPlayer = new Tone.Player().toDestination();
+                Tone.Transport.scheduleOnce((time)=>{
+                    console.log("HERE IN SYNTH: ", time)
+                    let offset = 0;
+                    for (let note of (track as MidiNoteSequence).data){
+                        if (note != null){
+                            console.log("AR triggered")
+                            synth!.triggerAttackRelease(note, "32n", time + offset)
+                        }
+                        offset += 0.25;
+                    }
+                }, 0)
             }
         }    
-        
-        
-        
-        let finalMix = globalContext!.createBufferSource();
-        finalMix.buffer = bufferSource;
-        finalMix.connect(globalContext.destination);
-        await globalContext.resume();
-        setCurrentMix(finalMix);
-        finalMix.start();
+       
+        // const players = new Tone.Players({
+        //     "recorded": bufferSource,
+        //     "synth": synthPlayer, 
+
+        // }).toDestination();
+        // let player = new Tone.Player(bufferSource, ()=>console.log("loaded")).toDestination();
+        let toneAudBuf = new Tone.ToneAudioBuffer(bufferSource)
+        player!.buffer = toneAudBuf
+        Tone.Transport.scheduleOnce((time)=>{
+            console.log("HERE IN RECORDED:", time)
+            // player.sync()
+            console.log("Schedule callback called")
+            player!.start(time).stop(time + bufferSource.duration);
+        }, 0) 
+        // let finalMix = globalContext!.createBufferSource();
+        // finalMix.buffer = bufferSource;
+        // finalMix.connect(globalContext.destination);
+        // await globalContext.resume();
+        // setCurrentMix(finalMix);
+        // player.start()
+        // seq.start();
+        console.log("starting")
         Tone.start();
+        Tone.Transport.start();
+
+        // console.log("HI")
+        // Tone.start();
+        // Tone.start()
+        // finalMix.start();
 
     }
 

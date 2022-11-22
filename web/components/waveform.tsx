@@ -12,7 +12,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected}) => {
 
     const handleWaveform = ()=>{
         const drawnData = generatePathData(i);
-        console.log("DRAWN DATA:", drawnData);
+        // console.log("DRAWN DATA:", drawnData);
         setPathData(drawnData);
 
     }
