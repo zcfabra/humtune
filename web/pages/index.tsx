@@ -28,12 +28,23 @@ const Home: NextPage = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [bpm, setBpm] = useState<number>(75);
   const [selected, setSelected] = useState<number | null>(null);
+  const selectedRef = useRef<number | null>(null)
   const [globalContext, setGlobalContext] = useState<AudioContext>();
+
+  useEffect(()=>{
+    selectedRef.current = selected;
+  }, [selected])
   useEffect(()=>{
      document.addEventListener("keydown", (e)=>{
       console.log(e.key)
       if (e.key == "Del" || e.key == "Backspace"){
-        console.log("delete")
+        console.log("SELECTEC:",selectedRef.current)
+        if (selectedRef.current != null){
+          setTracks(prev=>prev.filter((i, ix)=>{
+            return ix != selectedRef.current;
+          }))
+          setSelected(null)
+        }
       }
      });
 
@@ -96,8 +107,12 @@ const net = async ()=>{
 
 }
 const hanldeNewPianoRollTrack = ()=>{
-  let newMidi: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8}  
-  setTracks(prev=>[...prev, newMidi])  
+  let newMidi: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8} 
+  let priorLength = tracks.length 
+  setTracks(prev=>[...prev, newMidi]);
+  setSelected(priorLength);
+  setShowPianoRoll(true);
+  
   // setShowPianoRoll(true);
 }
 
@@ -117,6 +132,7 @@ useEffect(()=>{
 useEffect(()=>{
   console.log(tracks)
 },[tracks])
+
 return (
       <div className='w-full h-screen bg-gray-900 flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
