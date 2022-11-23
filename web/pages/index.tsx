@@ -48,7 +48,6 @@ const Home: NextPage = () => {
       }
      });
 
-    
     (async ()=>{
       const {SPICE, DDSP} = await import("@magenta/music");
       const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
