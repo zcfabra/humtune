@@ -13,6 +13,10 @@ import PianoRoll from '../components/pianoroll'
 import { MidiNoteSequence } from '../components/midiform'
 import { isMidiSequence } from '../typechecks'
 export const DEFAULT_SAMPLE_RATE = 44100;
+
+
+
+import * as Tone from "tone"
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
@@ -26,7 +30,12 @@ const Home: NextPage = () => {
   const [selected, setSelected] = useState<number | null>(null);
   const [globalContext, setGlobalContext] = useState<AudioContext>();
   useEffect(()=>{
-      
+     document.addEventListener("keydown", (e)=>{
+      console.log(e.key)
+      if (e.key == "Del" || e.key == "Backspace"){
+        console.log("delete")
+      }
+     });
 
     
     (async ()=>{
@@ -40,9 +49,9 @@ const Home: NextPage = () => {
       setModel(spice);
       console.log(spice);
 
-      const ctx = new AudioContext();
-       ctx.resume();
-      setGlobalContext(ctx);
+      // const ctx = new AudioContext();
+      //  ctx.resume();
+      // setGlobalContext(ctx);
 
   })();
     
@@ -55,12 +64,12 @@ const addAudioElement = async (blob: Blob)=>{
   // const ctx = new AudioContext();
   // console.log(blob)
   let buf = await blob.arrayBuffer();
-  let audbuf =  await globalContext!.decodeAudioData(buf);
+  let audbuf =  await Tone.context.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
   setTracks(prev=>[...prev , audbuf]);
-  const url = URL.createObjectURL(blob);
-  console.log("--------",url)
-  setSoundInput(url) 
+  // const url = URL.createObjectURL(blob);
+  // console.log("--------",url)
+  // setSoundInput(url) 
 }
 
 const net = async ()=>{
@@ -75,7 +84,8 @@ const net = async ()=>{
     return;}
     if ("sampleRate" in tracks[selected!]){
       const encoded = encodeWAV(out, (tracks[selected!] as AudioBuffer).sampleRate);
-      const newAudioBuffer = await globalContext!.decodeAudioData(encoded.buffer);
+      // Tone.start()
+      const newAudioBuffer = await Tone.context.decodeAudioData(encoded.buffer);
       setTracks(prev=>{
         prev[selected!] = newAudioBuffer!;
         return [...prev] 

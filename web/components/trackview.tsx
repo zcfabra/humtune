@@ -33,8 +33,9 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
 
     
     const playAll = async ()=>{
-        Tone.Transport.stop()
         Tone.start()
+        Tone.Transport.stop()
+        // Tone.start()
         // Tone.Transport.seconds = 0;
 
 
@@ -47,7 +48,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
                 }
             }
         }
-        let bufferSource = globalContext.createBuffer(1, maxLen > 0 ? maxLen : 1000000, DEFAULT_SAMPLE_RATE);
+        let bufferSource = player!.context.createBuffer(1, maxLen > 0 ? maxLen : 1000000, DEFAULT_SAMPLE_RATE);
         let buffer = bufferSource.getChannelData(0);
         // let synth = new Tone.Synth().toDestination();
         for (let track of tracks){
@@ -72,36 +73,24 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
             }
         }    
        
-        // const players = new Tone.Players({
-        //     "recorded": bufferSource,
-        //     "synth": synthPlayer, 
-
-        // }).toDestination();
-        // let player = new Tone.Player(bufferSource, ()=>console.log("loaded")).toDestination();
+      
         let toneAudBuf = new Tone.ToneAudioBuffer(bufferSource)
         player!.buffer = toneAudBuf
+        console.log("CONTEXT: ",player?.context)
+
+
         Tone.Transport.scheduleOnce((time)=>{
             console.log("HERE IN RECORDED:", time)
             // player.sync()
             console.log("Schedule callback called")
             player!.start(time).stop(time + bufferSource.duration);
         }, 0) 
-        // let finalMix = globalContext!.createBufferSource();
-        // finalMix.buffer = bufferSource;
-        // finalMix.connect(globalContext.destination);
-        // await globalContext.resume();
-        // setCurrentMix(finalMix);
-        // player.start()
-        // seq.start();
-        console.log("starting")
-        Tone.start();
+
+        console.log("starting", Tone.context.state)
+        await Tone.context.resume();
+        await Tone.start();
+        console.log("starting", Tone.context.state)
         Tone.Transport.start();
-
-        // console.log("HI")
-        // Tone.start();
-        // Tone.start()
-        // finalMix.start();
-
     }
 
   return (
