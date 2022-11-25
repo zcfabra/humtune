@@ -8,9 +8,14 @@ import { NoteSequence, sequenceProtoToMidi } from '@magenta/music';
 import { DEFAULT_SAMPLE_RATE } from '../pages';
 import { isMidiSequence } from '../typechecks';
 
+export interface Track<T>{
+    data: AudioBuffer | MidiNoteSequence,
+    soundMaker: Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.PolySynth | Tone.MetalSynth | Tone.MembraneSynth | Tone.PluckSynth | Tone.DuoSynth | Tone.NoiseSynth | Tone.Player,
+}
+
 interface TrackViewProps {
 
-    tracks: (AudioBuffer | MidiNoteSequence)[],
+    tracks: Track<MidiNoteSequence | AudioBuffer>[],
     globalContext: AudioContext,
     bpm: number,
     selected: number | null,
@@ -22,70 +27,37 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
    
     const [currentMix, setCurrentMix] = useState<AudioBufferSourceNode>()
     const masterMixRef = useRef<HTMLAudioElement>(null);
-    const [synth, setSynths ] = useState<Tone.Synth>();
-    const [player, setPlayer] = useState<Tone.Player>();
-    // const svgRef = useRef<SVGPathElement>(null);
-
-    useEffect(()=>{
-        setSynths(new Tone.Synth().toDestination())
-        setPlayer(new Tone.Player().toDestination())
-    },[])
-
     
     const playAll = async ()=>{
+        console.log("VOL: ",Tone.Destination.volume);
         Tone.start()
         Tone.Transport.stop()
-        // Tone.start()
-        // Tone.Transport.seconds = 0;
-
-
-        // globalContext.resume();
-        let maxLen: number = 0;
-        for (let track of tracks){ // currently, ignores midi sequences; may need to change later
-            if (track instanceof AudioBuffer){
-                if (track.length > maxLen){
-                    maxLen = track.length;
-                }
-            }
-        }
-        let bufferSource = player!.context.createBuffer(1, maxLen > 0 ? maxLen : 1000000, DEFAULT_SAMPLE_RATE);
-        let buffer = bufferSource.getChannelData(0);
-        // let synth = new Tone.Synth().toDestination();
         for (let track of tracks){
-            if (track instanceof AudioBuffer) {
-                let trackBuffer = track.getChannelData(0);
-                for (let i = 0; i < trackBuffer.length; i++){
-                    buffer[i] += trackBuffer[i];
-                }
+            if (track.data instanceof AudioBuffer) {
+                (track.soundMaker as Tone.Player).buffer = new Tone.ToneAudioBuffer(track.data as AudioBuffer)
+
+                console.log("ThING:",(track.soundMaker as Tone.Player).buffer)
+                    Tone.Transport.scheduleOnce((time)=>{
+                        console.log("HERE IN RECORDED:", time)
+                        // player.sync()
+                        console.log("Schedule callback called");
+                        (track.soundMaker as Tone.Player).start(time).stop(time + track.data.duration);
+                    }, 0);
+
             } else if (isMidiSequence(track)) {
-                // let synthPlayer = new Tone.Player().toDestination();
                 Tone.Transport.scheduleOnce((time)=>{
                     console.log("HERE IN SYNTH: ", time)
                     let offset = 0;
-                    for (let note of (track as MidiNoteSequence).data){
+                    for (let note of (track.data as MidiNoteSequence).data){
                         if (note != null){
-                            console.log("AR triggered")
-                            synth!.triggerAttackRelease(note, "32n", time + offset)
+                            console.log("AR triggered");
+                            (track.soundMaker as Tone.Synth).triggerAttackRelease(note, "32n", time + offset)
                         }
                         offset += 0.25;
                     }
                 }, 0)
             }
         }    
-       
-      
-        let toneAudBuf = new Tone.ToneAudioBuffer(bufferSource)
-        player!.buffer = toneAudBuf
-        console.log("CONTEXT: ",player?.context)
-
-
-        Tone.Transport.scheduleOnce((time)=>{
-            console.log("HERE IN RECORDED:", time)
-            // player.sync()
-            console.log("Schedule callback called")
-            player!.start(time).stop(time + bufferSource.duration);
-        }, 0) 
-
         console.log("starting", Tone.context.state)
         await Tone.context.resume();
         await Tone.start();
@@ -102,14 +74,14 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selec
         <div className='w-full'>
             <div className='w-full h-12 flex  flex-row'>
                 <div className='w-1/12 bg-black'></div>
-                <div className='w-11/12 bg-black overflow-x-scroll'>
+                <div className='w-11/12 bg-black overflow-x-scroll px-[10px]'>
                     {[...Array(100)].map((i, ix)=>(
-                        <span key={ix}className={`mx-4 border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
+                        <span key={ix}className={`mr-4 border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
                     ))}
                 </div>
             </div>
             {tracks.map((i, ix)=>{
-                return i instanceof AudioBuffer
+                return i.data instanceof AudioBuffer
                 ?
                  <Waveform i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
                 :

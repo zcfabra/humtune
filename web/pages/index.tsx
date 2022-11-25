@@ -8,20 +8,21 @@ import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
 import React, { useEffect, useRef, useState } from 'react'
 import {DDSP, NoteSequence, SPICE} from "@magenta/music"
 import { encodeWAV } from '../utils'
-import TrackView from '../components/trackview'
+import TrackView, { Track } from '../components/trackview'
 import PianoRoll from '../components/pianoroll'
 import { MidiNoteSequence } from '../components/midiform'
 import { isMidiSequence } from '../typechecks'
 export const DEFAULT_SAMPLE_RATE = 44100;
 
 
-
 import * as Tone from "tone"
+import Panel from '../components/panel'
+
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
 
-  const [tracks, setTracks] = useState<(AudioBuffer | MidiNoteSequence)[]>([]);
+  const [tracks, setTracks] = useState<Track<MidiNoteSequence | AudioBuffer>[]>([]);
   const [resultBuffer, setResultBuffer] = useState<string | null>();
   const [showPianoRoll, setShowPianoRoll] = useState<boolean>(false);
 
@@ -31,14 +32,16 @@ const Home: NextPage = () => {
   const selectedRef = useRef<number | null>(null)
   const [globalContext, setGlobalContext] = useState<AudioContext>();
 
+ 
+
   useEffect(()=>{
     selectedRef.current = selected;
   }, [selected])
   useEffect(()=>{
      document.addEventListener("keydown", (e)=>{
       console.log(e.key)
-      if (e.key == "Del" || e.key == "Backspace"){
-        console.log("SELECTEC:",selectedRef.current)
+      if (e.key == "Del" || e.key == "Backspace" || e.key == "Delete"){
+        // console.log("SELECTEC:",selectedRef.current)
         if (selectedRef.current != null){
           setTracks(prev=>prev.filter((i, ix)=>{
             return ix != selectedRef.current;
@@ -71,33 +74,30 @@ const [soundInput, setSoundInput] = useState<string | null>();
 
 const addAudioElement = async (blob: Blob)=>{
   console.log("*****")
-  // const ctx = new AudioContext();
-  // console.log(blob)
   let buf = await blob.arrayBuffer();
   let audbuf =  await Tone.context.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
-  setTracks(prev=>[...prev , audbuf]);
-  // const url = URL.createObjectURL(blob);
-  // console.log("--------",url)
-  // setSoundInput(url) 
+  const player = new Tone.Player().toDestination();
+  setTracks(prev=>[...prev , {soundMaker: player, data: audbuf}]);
 }
 
 const net = async ()=>{
-  if (!(tracks[selected!] instanceof AudioBuffer)){
+  if (!(tracks[selected!].data instanceof AudioBuffer)){
     console.log('PLOW')
     return;
   } else {
-  const features= await model?.getAudioFeatures(tracks[selected!] as AudioBuffer);
+    console.log("got here")
+  const features= await model?.getAudioFeatures(tracks[selected!].data as AudioBuffer);
   const out = await ddspModel?.synthesize(features);
   if (out == undefined){
     console.log("BAILED");
     return;}
-    if ("sampleRate" in tracks[selected!]){
-      const encoded = encodeWAV(out, (tracks[selected!] as AudioBuffer).sampleRate);
+    if ("sampleRate" in tracks[selected!].data){
+      const encoded = encodeWAV(out, (tracks[selected!].data as AudioBuffer).sampleRate);
       // Tone.start()
       const newAudioBuffer = await Tone.context.decodeAudioData(encoded.buffer);
       setTracks(prev=>{
-        prev[selected!] = newAudioBuffer!;
+        prev[selected!].data = newAudioBuffer!;
         return [...prev] 
       })
     }
@@ -106,9 +106,10 @@ const net = async ()=>{
 
 }
 const hanldeNewPianoRollTrack = ()=>{
-  let newMidi: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8} 
-  let priorLength = tracks.length 
-  setTracks(prev=>[...prev, newMidi]);
+  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8} 
+  let priorLength = tracks.length ;
+  let limiter = new Tone.Limiter(-80).toDestination()
+  setTracks(prev=>[...prev, {data: newMidiTrack, soundMaker: new Tone.Synth().connect(limiter).toDestination()}]);
   setSelected(priorLength);
   setShowPianoRoll(true);
   
@@ -137,22 +138,23 @@ return (
         <div className='absolute top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
           <button onClick={()=>hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
           <AudioRecorder onRecordingComplete={addAudioElement}/>
-          { selected != null && tracks[selected] instanceof AudioBuffer && tracks.length !=0 && <button onClick={net}className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>}
+          { selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length !=0 && <button onClick={net}className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>}
         </div>
+        <div className='w-full h-full flex flex-row'>
 
-        {soundInput && <div className='flex flex-col items-center'>
-          {/* <audio className="my-8"controls={true} ref={audioRef}src={soundInput}></audio> */}
-          {/* <button onClick={()=>setSoundInput(null)}>X</button> */}
-          {/* <button className='w-32 mb-8 h-12 bg-orange-500 rounded-md text-white font-medium'>Do the thing</button> */}
-          </div>         
-}
-          {/* {resultBuffer && 
-          // <audio controls={true} >
-            // <source src={resultBuffer} type="audio/webm;codescs=opus"/>
-            </audio>} */}
+            <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-scroll`}>
 
             <TrackView selected={selected} setSelected={setSelected} bpm={bpm}globalContext={globalContext!}tracks={tracks}></TrackView>
-            {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} data={tracks[selected!] as MidiNoteSequence} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
+            </div>
+            {selected!= null && <div className='w-3/12'>
+              <Panel setTracks={setTracks} tracks={tracks} selected={selected}/>
+              </div>} 
+            {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} data={tracks[selected!].data as MidiNoteSequence} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
+        </div>
+
+       
+   
+
       </div>
     )
 
