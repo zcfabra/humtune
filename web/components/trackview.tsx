@@ -37,7 +37,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
 
 
         console.log("TIMES:\nTone.now():",Tone.now()," \n Tone.Transport():", Tone.Transport.now());
-        console.log(Tone.now() == Tone.Transport.now());
+        console.log("Synced?",Tone.now() == Tone.Transport.now());
         for (let track of tracks){
             if (track.data instanceof AudioBuffer) {
                     Tone.Transport.scheduleOnce((time)=>{
@@ -67,11 +67,14 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
 
                     let offset = 0;
 
-                    for (let note of (track.data as MidiNoteSequence).data){
-                        if (note != null){
-                            (track.soundMaker as Tone.Synth).triggerAttackRelease(note, track.tempo!, start_time+ offset);
+                    for (let bar = 0; bar < track.timesToLoop!; bar++){
+
+                        for (let note of (track.data as MidiNoteSequence).data){
+                            if (note != null){
+                                (track.soundMaker as Tone.Synth).triggerAttackRelease(note, track.tempo!, start_time+ offset);
+                            }
+                            offset += Tone.Time(track.tempo).toSeconds();
                         }
-                        offset += Tone.Time(track.tempo).toSeconds();
                     }
                 }, 0)
             }

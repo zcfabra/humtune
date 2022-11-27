@@ -52,5 +52,5 @@ export interface Track<T>{
     data: AudioBuffer | MidiNoteSequence,
     soundMaker: SynthPack | Tone.Player,
     tempo?: string,
-    bars?: number
+    timesToLoop?: number
 };

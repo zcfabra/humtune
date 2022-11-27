@@ -124,9 +124,11 @@ const net = async ()=>{
 
 }
 const hanldeNewPianoRollTrack = ()=>{
-  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8} 
+  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8 } 
   let priorLength = tracks.length;
-  setTracks(prev=>[...prev, {data: newMidiTrack, soundMaker: new Tone.Synth().toDestination(), tempo: TEMPOS.QUARTER}]);
+  let synth = new Tone.Synth().toDestination();
+  synth.volume.value = -15;
+  setTracks(prev=>[...prev, {data: newMidiTrack,timesToLoop: 1 ,soundMaker: synth ,tempo: TEMPOS.QUARTER}]);
   setSelected(priorLength);
   setShowPianoRoll(true);
   
