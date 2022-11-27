@@ -1,14 +1,10 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-
-import dynamic from 'next/dynamic'
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
 
 import React, { useEffect, useRef, useState } from 'react'
-import {DDSP, NoteSequence, SPICE} from "@magenta/music"
+import {DDSP, NoteSequence, SPICE} from "@magenta/music";
 import { encodeWAV } from '../utils'
-import TrackView, { Track } from '../components/trackview'
+import TrackView, { TEMPOS, Track } from '../components/trackview'
 import PianoRoll from '../components/pianoroll'
 import { MidiNoteSequence } from '../components/midiform'
 import { isMidiSequence } from '../typechecks'
@@ -16,28 +12,34 @@ export const DEFAULT_SAMPLE_RATE = 44100;
 
 
 import * as Tone from "tone"
-import Panel from '../components/panel'
+import SynthPanel from '../components/panel'
+import SamplePanel from '../components/samplepanel'
+
+
+
+export type SynthPack = Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.PolySynth | Tone.MonoSynth | Tone.MetalSynth | Tone.MembraneSynth | Tone.PluckSynth | Tone.DuoSynth | Tone.NoiseSynth;
 
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
-
+  
   const [tracks, setTracks] = useState<Track<MidiNoteSequence | AudioBuffer>[]>([]);
   const [resultBuffer, setResultBuffer] = useState<string | null>();
   const [showPianoRoll, setShowPianoRoll] = useState<boolean>(false);
-
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [bpm, setBpm] = useState<number>(75);
+  
+  const [bpm, setBpm] = useState<number>();
   const [selected, setSelected] = useState<number | null>(null);
   const selectedRef = useRef<number | null>(null)
   const [globalContext, setGlobalContext] = useState<AudioContext>();
-
- 
-
+  
+  
+  
   useEffect(()=>{
+    // Tone.setContext(new AudioContext());
     selectedRef.current = selected;
   }, [selected])
   useEffect(()=>{
+    setBpm(Tone.Transport.bpm.value)
      document.addEventListener("keydown", (e)=>{
       console.log(e.key)
       if (e.key == "Del" || e.key == "Backspace" || e.key == "Delete"){
@@ -61,11 +63,6 @@ const Home: NextPage = () => {
       await spice.initialize() 
       setModel(spice);
       console.log(spice);
-
-      // const ctx = new AudioContext();
-      //  ctx.resume();
-      // setGlobalContext(ctx);
-
   })();
     
   }, [])
@@ -78,7 +75,14 @@ const addAudioElement = async (blob: Blob)=>{
   let audbuf =  await Tone.context.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
   const player = new Tone.Player().toDestination();
-  setTracks(prev=>[...prev , {soundMaker: player, data: audbuf}]);
+  setTracks(prev=>{
+    let newAudioBufferTrack: Track<AudioBuffer> = {
+      data: audbuf,
+      soundMaker: player
+    };
+    (newAudioBufferTrack.soundMaker as Tone.Player).buffer = new Tone.ToneAudioBuffer(audbuf);
+    return [...prev, newAudioBufferTrack]
+  });
 }
 
 const net = async ()=>{
@@ -89,31 +93,42 @@ const net = async ()=>{
     console.log("got here")
   const features= await model?.getAudioFeatures(tracks[selected!].data as AudioBuffer);
   const out = await ddspModel?.synthesize(features);
+// let out = "hi"
   if (out == undefined){
     console.log("BAILED");
     return;}
     if ("sampleRate" in tracks[selected!].data){
+      // setTracks(prev=>{
+      //   let buf = prev[selected!].data;
+      //   let toneAudBuf = (prev[selected!].soundMaker as Tone.Player).buffer;
+      //   prev[selected!].data = buf;
+      //   (prev[selected!].soundMaker as Tone.Player).buffer =  toneAudBuf;
+      //   return [...prev];
+      // })
+
+
+
       const encoded = encodeWAV(out, (tracks[selected!].data as AudioBuffer).sampleRate);
-      // Tone.start()
       const newAudioBuffer = await Tone.context.decodeAudioData(encoded.buffer);
       setTracks(prev=>{
-        prev[selected!].data = newAudioBuffer!;
-        return [...prev] 
+        prev[selected!].data = newAudioBuffer;
+        let toneAudBuf = new Tone.ToneAudioBuffer(newAudioBuffer);
+        (prev[selected!].soundMaker as Tone.Player).buffer = toneAudBuf 
+        return [...prev]; 
       })
     }
+
     
 }
 
 }
 const hanldeNewPianoRollTrack = ()=>{
   let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8} 
-  let priorLength = tracks.length ;
-  let limiter = new Tone.Limiter(-80).toDestination()
-  setTracks(prev=>[...prev, {data: newMidiTrack, soundMaker: new Tone.Synth().connect(limiter).toDestination()}]);
+  let priorLength = tracks.length;
+  setTracks(prev=>[...prev, {data: newMidiTrack, soundMaker: new Tone.Synth().toDestination(), tempo: TEMPOS.QUARTER}]);
   setSelected(priorLength);
   setShowPianoRoll(true);
   
-  // setShowPianoRoll(true);
 }
 
 useEffect(()=>{
@@ -123,7 +138,7 @@ useEffect(()=>{
   if (selected !=null){
     if (isMidiSequence(tracks[selected])){
       setShowPianoRoll(true);
-      console.log("hi")
+      // console.log("hi")
     } else {
       setShowPianoRoll(false);
     }
@@ -134,7 +149,7 @@ useEffect(()=>{
 },[tracks])
 
 return (
-      <div className='w-full h-screen bg-gray-900 flex flex-col items-center pt-24'>
+      <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
           <button onClick={()=>hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
           <AudioRecorder onRecordingComplete={addAudioElement}/>
@@ -144,12 +159,12 @@ return (
 
             <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-scroll`}>
 
-            <TrackView selected={selected} setSelected={setSelected} bpm={bpm}globalContext={globalContext!}tracks={tracks}></TrackView>
+            <TrackView selected={selected} setSelected={setSelected} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              <Panel setTracks={setTracks} tracks={tracks} selected={selected}/>
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
-            {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} data={tracks[selected!].data as MidiNoteSequence} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
+            {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>
 
        

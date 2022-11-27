@@ -16,6 +16,8 @@ interface MidiFormProps{
     i: Track<MidiNoteSequence>,
 }
 
+
+
 export const notesMap = new Map<string, number>(notes.map((i, ix)=>{return[i,ix]}))
 
 
@@ -43,6 +45,9 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
     }
 
     const [pathData, setPathData] = useState<string>("");
+    const handleDrag = (e: React.DragEvent<HTMLDivElement>)=>{
+        console.log("HOW HOW")
+    }
 
     return (
         <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
@@ -57,7 +62,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
                 <svg className={`w-full stroke-black`}>
                     <path strokeWidth={3} d={handleDrawPath(i.data as MidiNoteSequence)}></path>
                 </svg>    
-                <div className='w-[3px] h-full bg-gray-900 cursor-col-resize'></div>   
+                <div draggable onDragStart={handleDrag} className='w-[2px] h-full bg-gray-900 cursor-col-resize'></div>   
             </div>
         </div>
         {/* <div key={ix} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} className={`h-16 rounded-md cursor-pointer ${selected == ix ? "bg-purple-500" : "bg-orange-400"} ${selected==ix ? "border-purple-300" : "border-orange-300"} border-2 `} style={{width: `${i.length % 1000}px`}}>{JSON.stringify(i.length)}</div> */}

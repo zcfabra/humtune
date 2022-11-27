@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import * as Tone from "tone";
+import { SynthPack } from '../pages';
 import { MidiNoteSequence } from './midiform';
 import { Track } from './trackview';
 
@@ -7,31 +8,31 @@ export const notes = ["C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", 
 
 interface PianoRollProps{
     showPianoRoll: boolean,
-    data: MidiNoteSequence,
+    track: Track<MidiNoteSequence>,
     selected: number | null ,
     setTracks: React.Dispatch<React.SetStateAction<Track<MidiNoteSequence | AudioBuffer>[]>>,
     setShowPianoRoll: React.Dispatch<React.SetStateAction<boolean>>
 }
-const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, data, setTracks, selected}) => {
+const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, track, setTracks, selected}) => {
     // const [trackData, setTrackData] = useState<MidiNoteSequence>()
-    const [synth, setSynth] = useState<Tone.Synth<Tone.SynthOptions>>();
-    useEffect(()=>{
-        // var freeverb = new Tone.Freeverb();
-        // freeverb.dampening = 10000;
-        // setTrackData(data)
+    // const [synth, setSynth] = useState<Tone.Synth<Tone.SynthOptions>>();
+    // useEffect(()=>{
+    //     // var freeverb = new Tone.Freeverb();
+    //     // freeverb.dampening = 10000;
+    //     // setTrackData(data)
 
-        var synth = new Tone.Synth().toDestination();
-        setSynth(synth);
-    }, [])
+    //     var synth = new Tone.Synth().toDestination();
+    //     setSynth(synth);
+    // }, [])
     const handleSelectedNote = (ix:number, noteIx: number) =>{
-        let copy = data
-        copy.data[ix] = copy.data[ix] == notes[noteIx] ? null : notes[noteIx]
+        let copy = track.data;
+        (copy as MidiNoteSequence).data[ix] = (copy as MidiNoteSequence).data[ix] == notes[noteIx] ? null : notes[noteIx]
 
 
         setTracks((prev)=>{  
             // let copy = [...(prev[selected!] as MidiNoteSequence).data];
             // copy[ix] = copy[ix] == notes[noteIx] ? null : notes[noteIx];
-            (prev[selected!].data as MidiNoteSequence) = copy
+            prev[selected!].data = copy;
             return [...prev]
         })
     }
@@ -39,26 +40,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, data, setTracks,
         console.log(ix)
     }
 
-//   const playSynth = ()=>{
-
-
-//     if (synth){
-//         synth.toDestination();
-//         const now = Tone.now();
-//       let offset = 0;
-      
-//       for (let each of data.data){
-//           if (each){
-//               synth.triggerAttackRelease(each, "32n",now + offset)
-//             }
-//             offset+=0.25
-//         }
-//         Tone.start();
-//     }
-
-//   }  
     const synthPlay = (note: string)=>{
-        synth!.triggerAttackRelease(note, "32n", Tone.now())
+        console.log(track.soundMaker);
+        (track.soundMaker as SynthPack).triggerAttackRelease(note, "8n", Tone.now())
     }
   return (
     <div className='w-full h-2/6 bg-black absolute bottom-0 flex flex-row overflow-y-scroll'>
@@ -81,7 +65,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, data, setTracks,
                 ))}
             </div>
             <div className=' w-full flex flex-row'>
-            {data.data.map((i, ix)=>(
+            {((track.data as MidiNoteSequence).data).map((i, ix)=>(
                 <div key={ix} className={`w-[6.25%]`}>
                     {notes.map((note, noteIx)=>(
                         <div key={noteIx} onClick={()=>handleSelectedNote(ix, noteIx)} className={`w-full cursor-pointer h-12 ${i && i == note ? "bg-purple-500" :  ix %4 == 0 ? "bg-gray-800" : "bg-black"} border border-gray-900 `}></div>

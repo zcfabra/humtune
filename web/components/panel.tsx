@@ -1,9 +1,8 @@
 import React, { ReactText } from 'react'
 import { MidiNoteSequence } from './midiform';
-import { Track } from './trackview';
+import { TEMPOS, Track } from './trackview';
 import * as Tone from "tone"
 import { handleClientScriptLoad } from 'next/script';
-import { div } from '@tensorflow/tfjs';
 
 interface PanelProps{
     selected: number,
@@ -25,17 +24,8 @@ const INSTRUMENTMAP ={
     MonoSynth: "MonoSynth"
 }
 
-const Panel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
+const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
 
-    // const handleUpdateAttribute = (e: React.ChangeEvent<HTMLInputElement>) =>{
-    //     console.log(e.target.value);
-
-    //     // setTracks(prev=>{
-    //     //     (prev[selected].soundMaker as Tone.Synth).envelope.set({[e.target.name]: Number(e.target.value)}); 
-    //     //     return [...prev];
-    //     // });
-
-    // }
 
     const handleSelectInstrument = (e: React.ChangeEvent<HTMLSelectElement>)=>{
         switch (e.target.value){
@@ -97,17 +87,55 @@ const Panel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
                     return [...prev]
                 });
                 break;
+            case INSTRUMENTMAP.MonoSynth:
+                let instrument9 = new Tone.MonoSynth().toDestination();
+                setTracks(prev=>{
+                    prev[selected].soundMaker = instrument9
+                    return [...prev]
+                });
+                break;
         }
     }
+
+
+    const handleSelectTempo = (e: React.ChangeEvent<HTMLSelectElement>)=>{
+        console.log(e.target.value);
+        setTracks(prev=>{
+            prev[selected].tempo = TEMPOS[e.target.value as keyof object];
+            return [...prev]
+        })
+    }
+
+    const handleSetBars = (e: React.ChangeEvent<HTMLSelectElement>)=>{
+        setTracks(prev=>{
+            prev[selected].bars = Number(e.target.value) + 1;
+            return [...prev]
+        })
+    }
     return (
-        <div className={`w-full overflow-y-scroll  bg-black border-x border-gray-900 flex flex-col ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
-            <select value={tracks[selected].soundMaker.name} onChange={handleSelectInstrument} className=" h-12  rounded-md w-6/12"name="" id="">
+        <div className={`w-full overflow-y-scroll text-white p-4 bg-black border-x border-gray-900 flex flex-col ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
+            <span>Instrument</span>
+            <select value={tracks[selected].soundMaker.name} onChange={handleSelectInstrument} className=" h-12 text-black rounded-md w-6/12"name="" id="">
                 {instruments.map((i,ix)=>(
-                    <option value={i}>{i}</option>
+                    <option key={ix} value={i}>{i}</option>
                 ))}
             </select>
+            <span>Tempo</span>
+            <select className='text-black' onChange={handleSelectTempo} value={Object.keys(TEMPOS).find(key => TEMPOS[key as keyof object] === tracks[selected].tempo)} name="" id="">
+                {Object.keys(TEMPOS).map((i, ix)=>(
+                    <option key = {ix}value={i}>{i}</option>
+                )
+                )}
+
+            </select>
+            <span>Bars</span>
+            <select className='text-black' onChange={handleSetBars} name="" id="">{
+                [...Array(4)].map((i, ix)=>(
+                    <option value={i} key={ix}>{ix + 1}</option>
+                ))
+            }</select>
         </div>
     )
 }
 
-export default Panel;
+export default SynthPanel;

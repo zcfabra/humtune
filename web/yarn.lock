@@ -51,9 +51,8 @@
   "resolved" "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   "version" "1.2.1"
 
-"@magenta/music@^1.23.1":
-  "integrity" "sha512-MKIf5nU5fJg/j0y+zCeuQuhA5D4TD0hWv+crOpNQLq7TRJ5GQnlz4WuShYzSw/gXj2ncWuYGr6ftP9DvqSsQkA=="
-  "resolved" "https://registry.npmjs.org/@magenta/music/-/music-1.23.1.tgz"
+"@magenta/music@github:zcfabra/magenta-js#main":
+  "resolved" "git+ssh://git@github.com/zcfabra/magenta-js.git#e6649b6c6698a3ba8b66769809620c684bb8e901"
   "version" "1.23.1"
   dependencies:
     "@tensorflow/tfjs" "^2.7.0"
@@ -65,6 +64,7 @@
     "staffrender" "^0.2.1"
     "tonal" "^2.0.0"
     "tone" "^14.7.58"
+    "tsc" "^2.0.4"
 
 "@next/env@13.0.3":
   "integrity" "sha512-/4WzeG61Ot/PxsghXkSqQJ6UohFfwXoZ3dtsypmR9EBP+OIax9JRq0trq8Z/LCT9Aq4JbihVkaazRWguORjTAw=="
@@ -600,10 +600,10 @@
   "resolved" "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   "version" "0.4.0"
 
-"automation-events@^4.0.23":
-  "integrity" "sha512-3Q/moBk0NeWZb5jm5WtjmpAV5lxCoS00W+PQmQLp5mU0ra8AqU/lfjsIJly7Ze1drBE4aNfZIMGlbU+sTtJQJw=="
-  "resolved" "https://registry.npmjs.org/automation-events/-/automation-events-4.0.23.tgz"
-  "version" "4.0.23"
+"automation-events@^4.0.24":
+  "integrity" "sha512-v/c//VCE1TGU3R56cyTFnebXFR3NOOx5Kiuaz7TXwLGpYMp9VgKCwelODRW3ZZ5TP2OFymfrWsvNVuPSi6vVPQ=="
+  "resolved" "https://registry.npmjs.org/automation-events/-/automation-events-4.0.24.tgz"
+  "version" "4.0.24"
   dependencies:
     "@babel/runtime" "^7.20.1"
     "tslib" "^2.4.1"
@@ -2543,12 +2543,12 @@
   "version" "0.2.1"
 
 "standardized-audio-context@^25.1.8":
-  "integrity" "sha512-SL8FQYqpfOifYGhAVfnAgC9o86mFNhy+W3xp28lHI6HgOQMbLTMcBoSN3FT0SwE51br7I9tmgjwiLggg7WWD/Q=="
-  "resolved" "https://registry.npmjs.org/standardized-audio-context/-/standardized-audio-context-25.3.34.tgz"
-  "version" "25.3.34"
+  "integrity" "sha512-61KBkor9fOsMEl3NZllnis8KDmTJzonuuW8h6JBmxXXcUDucypGCJp+hlbyKG+olav8wgA+VKlqFmiJEbh4CfA=="
+  "resolved" "https://registry.npmjs.org/standardized-audio-context/-/standardized-audio-context-25.3.35.tgz"
+  "version" "25.3.35"
   dependencies:
     "@babel/runtime" "^7.20.1"
-    "automation-events" "^4.0.23"
+    "automation-events" "^4.0.24"
     "tslib" "^2.4.1"
 
 "static-eval@~0.2.0":
@@ -2826,6 +2826,11 @@
   "integrity" "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw=="
   "resolved" "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   "version" "0.0.3"
+
+"tsc@^2.0.4":
+  "integrity" "sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q=="
+  "resolved" "https://registry.npmjs.org/tsc/-/tsc-2.0.4.tgz"
+  "version" "2.0.4"
 
 "tsconfig-paths@^3.14.1":
   "integrity" "sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ=="

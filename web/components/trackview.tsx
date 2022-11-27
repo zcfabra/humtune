@@ -4,17 +4,26 @@ import { generatePathData } from '../drawwaveform';
 import MidiForm, { MidiNoteSequence } from './midiform';
 import Waveform from './waveform';
 import * as Tone from "tone"
-import { NoteSequence, sequenceProtoToMidi } from '@magenta/music';
-import { DEFAULT_SAMPLE_RATE } from '../pages';
+import { DEFAULT_SAMPLE_RATE, SynthPack } from '../pages';
 import { isMidiSequence } from '../typechecks';
+
+export const TEMPOS= {
+    WHOLE: "1n",
+    HALF: "2n",
+    QUARTER: "4n",
+    EIGHTH: "8n",
+    SIXTEENTH: "16n",
+    THIRTYSECOND: "32n"
+}
 
 export interface Track<T>{
     data: AudioBuffer | MidiNoteSequence,
-    soundMaker: Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.PolySynth | Tone.MetalSynth | Tone.MembraneSynth | Tone.PluckSynth | Tone.DuoSynth | Tone.NoiseSynth | Tone.Player,
-}
+    soundMaker: SynthPack | Tone.Player,
+    tempo?: string,
+    bars?: number
+};
 
 interface TrackViewProps {
-
     tracks: Track<MidiNoteSequence | AudioBuffer>[],
     globalContext: AudioContext,
     bpm: number,
@@ -22,47 +31,72 @@ interface TrackViewProps {
     setSelected:React.Dispatch<React.SetStateAction<number | null>>
 }
 
-const  TrackView: React.FC<TrackViewProps> = ({tracks, globalContext, bpm, selected, setSelected}) => {
+const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelected}) => {
 
-   
-    const [currentMix, setCurrentMix] = useState<AudioBufferSourceNode>()
-    const masterMixRef = useRef<HTMLAudioElement>(null);
-    
     const playAll = async ()=>{
-        console.log("VOL: ",Tone.Destination.volume);
-        Tone.start()
-        Tone.Transport.stop()
+        
+        
+        Tone.Transport.stop();
+        Tone.Transport.position = "0:0:0";
+        console.log("Transport Position:", Tone.Transport.position);
+
+
+        let max = 0;
+        for (let each of tracks){
+            if (each.data.duration > max){
+                max = each.data.duration;
+            }
+        }
+
+
+        console.log("TIMES:\nTone.now():",Tone.now()," \n Tone.Transport():", Tone.Transport.now());
+        console.log(Tone.now() == Tone.Transport.now());
         for (let track of tracks){
             if (track.data instanceof AudioBuffer) {
-                (track.soundMaker as Tone.Player).buffer = new Tone.ToneAudioBuffer(track.data as AudioBuffer)
-
-                console.log("ThING:",(track.soundMaker as Tone.Player).buffer)
                     Tone.Transport.scheduleOnce((time)=>{
-                        console.log("HERE IN RECORDED:", time)
-                        // player.sync()
-                        console.log("Schedule callback called");
-                        (track.soundMaker as Tone.Player).start(time).stop(time + track.data.duration);
+
+                        console.log("HERE IN RECORDED:");
+                        let diff = Tone.Transport.now() - track.soundMaker.now();
+                        console.log("DIFF: ", diff);
+                        console.log("Time in callback: ",time);
+                        console.log("Time of Tone.now()", Tone.now());
+                        console.log("Time of Player.now()", track.soundMaker.now());
+                        console.log("Time of Tone.Transport.now()", Tone.Transport.now());
+                        let start_time = diff == 0 ? time : time - diff;
+                        (track.soundMaker as Tone.Player).start(start_time).stop(start_time + track.data.duration);
                     }, 0);
 
             } else if (isMidiSequence(track)) {
                 Tone.Transport.scheduleOnce((time)=>{
-                    console.log("HERE IN SYNTH: ", time)
+                    console.log("HERE IN SYNTH:");
+                    let diff = Tone.Transport.now() - track.soundMaker.now();
+                    console.log("DIFF: ", diff);
+
+                    console.log("Time of callback", time);
+                    console.log("Tone of Synth.now()", track.soundMaker.now());
+                    console.log("Time of Tone.now()", Tone.now());
+                    console.log("Time of Tone.Transport.now()", Tone.Transport.now());
+                    let start_time = diff == 0 ? time : time - diff;
+
                     let offset = 0;
+
                     for (let note of (track.data as MidiNoteSequence).data){
                         if (note != null){
-                            console.log("AR triggered");
-                            (track.soundMaker as Tone.Synth).triggerAttackRelease(note, "32n", time + offset)
+                            (track.soundMaker as Tone.Synth).triggerAttackRelease(note, track.tempo!, start_time+ offset);
                         }
-                        offset += 0.25;
+                        offset += Tone.Time(track.tempo).toSeconds();
                     }
                 }, 0)
             }
         }    
         console.log("starting", Tone.context.state)
         await Tone.context.resume();
-        await Tone.start();
+        Tone.start();
         console.log("starting", Tone.context.state)
         Tone.Transport.start();
+
+
+
     }
 
   return (
