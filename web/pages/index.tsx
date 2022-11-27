@@ -4,16 +4,17 @@ import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
 import React, { useEffect, useRef, useState } from 'react'
 import {DDSP, NoteSequence, SPICE} from "@magenta/music";
 import { encodeWAV } from '../utils'
-import TrackView, { TEMPOS, Track } from '../components/trackview'
+import { TEMPOS, Track } from  "../typesandconsts"
 import PianoRoll from '../components/pianoroll'
-import { MidiNoteSequence } from '../components/midiform'
-import { isMidiSequence } from '../typechecks'
+import { MidiNoteSequence } from '../typesandconsts'
+import { isMidiSequence } from '../utils'
 export const DEFAULT_SAMPLE_RATE = 44100;
 
 
 import * as Tone from "tone"
 import SynthPanel from '../components/panel'
 import SamplePanel from '../components/samplepanel'
+import TrackView from '../components/trackview';
 
 
 

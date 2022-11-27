@@ -1,27 +1,15 @@
-import React, { ReactText } from 'react'
-import { MidiNoteSequence } from './midiform';
-import { TEMPOS, Track } from './trackview';
+import React from 'react'
+import { MidiNoteSequence } from '../typesandconsts';
+
+import { TEMPOS, Track } from '../typesandconsts';
 import * as Tone from "tone"
 import { handleClientScriptLoad } from 'next/script';
+import { INSTRUMENTMAP, instruments } from '../typesandconsts';
 
 interface PanelProps{
     selected: number,
     tracks: Track<MidiNoteSequence| AudioBuffer>[],
     setTracks: React.Dispatch<React.SetStateAction<Track<MidiNoteSequence | AudioBuffer>[]>>,
-}
-
-const instruments = ["Synth", "AMSynth", "FMSynth", "DuoSynth", "MembraneSynth", "MetalSynth", "PluckSynth", "PolySynth", "MonoSynth"]
-
-const INSTRUMENTMAP ={
-    Synth: "Synth",
-    AMSynth:"AMSynth",
-    FMSynth: "FMSynth",
-    DuoSynth: "DuoSynth",
-    MembraneSynth: "MembraneSynth",
-    MetalSynth: "MetalSynth",
-    PluckSynth: "PluckSynth",
-    PolySynth: "PolySynth",
-    MonoSynth: "MonoSynth"
 }
 
 const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
@@ -121,19 +109,19 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
                 ))}
             </select>
             <span>Tempo</span>
-            <select className='text-black' onChange={handleSelectTempo} value={Object.keys(TEMPOS).find(key => TEMPOS[key as keyof object] === tracks[selected].tempo)} name="" id="">
+            <select className='text-black h-12 rounded-md w-6/12' onChange={handleSelectTempo} value={Object.keys(TEMPOS).find(key => TEMPOS[key as keyof object] === tracks[selected].tempo)} name="" id="">
                 {Object.keys(TEMPOS).map((i, ix)=>(
                     <option key = {ix}value={i}>{i}</option>
                 )
                 )}
 
             </select>
-            <span>Bars</span>
+            {/* <span>Bars</span>
             <select className='text-black' onChange={handleSetBars} name="" id="">{
                 [...Array(4)].map((i, ix)=>(
                     <option value={i} key={ix}>{ix + 1}</option>
                 ))
-            }</select>
+            }</select> */}
         </div>
     )
 }

@@ -1,27 +1,14 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { generatePathData } from '../drawwaveform';
-import MidiForm, { MidiNoteSequence } from './midiform';
+import { MidiNoteSequence, Track } from '../typesandconsts';
 import Waveform from './waveform';
 import * as Tone from "tone"
 import { DEFAULT_SAMPLE_RATE, SynthPack } from '../pages';
-import { isMidiSequence } from '../typechecks';
+import { isMidiSequence } from '../utils';
+import MidiForm from './midiform';
 
-export const TEMPOS= {
-    WHOLE: "1n",
-    HALF: "2n",
-    QUARTER: "4n",
-    EIGHTH: "8n",
-    SIXTEENTH: "16n",
-    THIRTYSECOND: "32n"
-}
 
-export interface Track<T>{
-    data: AudioBuffer | MidiNoteSequence,
-    soundMaker: SynthPack | Tone.Player,
-    tempo?: string,
-    bars?: number
-};
 
 interface TrackViewProps {
     tracks: Track<MidiNoteSequence | AudioBuffer>[],

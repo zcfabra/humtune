@@ -1,39 +1,27 @@
 
 import React, { useEffect, useState } from 'react'
-import { notes } from './pianoroll';
-import { Track } from './trackview';
-export type MidiNoteSequence={
-    data: (string | null)[],
-    readonly duration: number;
-    // readonly length: number;
-    // readonly numberOfChannels: number;
-    // readonly sampleRate: number;
-}
+import { MidiNoteSequence, notesMap, tempoWidth } from '../typesandconsts';
+import { notes } from '../typesandconsts';
+import { Track } from '../typesandconsts';
 interface MidiFormProps{
     ix: number,
     selected: number | null,
     setSelected: React.Dispatch<React.SetStateAction<number | null>>,
     i: Track<MidiNoteSequence>,
 }
-
-
-
-export const notesMap = new Map<string, number>(notes.map((i, ix)=>{return[i,ix]}))
-
-
 const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
-    const generatePathData = (i: MidiNoteSequence): string=>{
+    const generatePathData = (seq: MidiNoteSequence): string=>{
         let out = "";
         let h = 10
         let w = 10;
-        console.log("IDATA:", i.data)
+        console.log("IDATA:", seq.data)
 
-        for (let x of i.data){
+        for (let x of seq.data){
             if (x != null){
                 let y = h + notesMap.get(x)! * 2.5
-                out+=`M ${w},${y}`+`L${w+18}, ${y}` 
+                out+=`M ${w},${y}`+`L${w+18 / (16/tempoWidth[i.tempo as keyof object])}, ${y}` 
             }
-            w+=18;
+            w+=18 / (16/ tempoWidth[i.tempo as keyof object]);
         }
 
 
@@ -46,7 +34,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
 
     const [pathData, setPathData] = useState<string>("");
     const handleDrag = (e: React.DragEvent<HTMLDivElement>)=>{
-        console.log("HOW HOW")
+        console.log("DRAG:", e.dataTransfer)
     }
 
     return (
@@ -58,7 +46,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
             </div>
         </div>
         <div className='relative w-11/12 bg-black h-full border border-gray-900'>
-            <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${10 + 18 * 16 + 1}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
+            <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${10 + 18 * tempoWidth[i.tempo as keyof object] + 1}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
                 <svg className={`w-full stroke-black`}>
                     <path strokeWidth={3} d={handleDrawPath(i.data as MidiNoteSequence)}></path>
                 </svg>    

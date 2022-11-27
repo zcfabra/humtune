@@ -1,6 +1,6 @@
 import React from 'react'
-import { MidiNoteSequence } from './midiform'
-import { Track } from './trackview'
+import { MidiNoteSequence } from '../typesandconsts'
+import { Track } from '../typesandconsts'
 
 interface SamplePanelProps{
     track: Track<AudioBuffer>,

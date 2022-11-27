@@ -1,3 +1,6 @@
+import { MidiNoteSequence } from "./typesandconsts"
+import { Track } from "./typesandconsts"
+
 function writeString(view: DataView, offset: number, str: string) {
     for (let i = 0; i < str.length; i++) {
       view.setUint8(offset + i, str.charCodeAt(i));
@@ -51,3 +54,18 @@ export function encodeWAV(samples: Float32Array, sampleRate: number) {
     return view;
   }
    
+
+
+  
+  export const isMidiSequence = (x: Track<any>): boolean =>{
+      if (x == undefined) {
+          return false;
+      }
+      if (!( "data" in x.data)){
+          return false;
+      } 
+      if (!("duration" in x.data)){
+          return false
+      }
+      return true
+  }

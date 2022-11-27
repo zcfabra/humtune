@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { generatePathData } from '../drawwaveform';
-import { Track } from './trackview';
+import { Track } from '../typesandconsts';
 interface WaveformProps{
     i: Track<AudioBuffer>,
     ix: number,
