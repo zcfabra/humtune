@@ -39,13 +39,8 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
 
     return (
         <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-        <div className='w-1/12 h-full bg-gray-900 text-white p-4 flex flex-col'>
-            <div className='flex flex-row'>
-                <button className='mx-2 rounded-md bg-gray-800 w-8 h-8'>M</button>
-                <button className='mx-2 rounded-md bg-gray-800 w-8 h-8'>S</button>
-            </div>
-        </div>
-        <div className='relative w-11/12 bg-black h-full border border-gray-900'>
+       
+        <div className='relative w-full bg-black h-full border border-gray-900'>
             <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${10 + (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
                 <svg className={`w-full stroke-black`}>
                     <path strokeWidth={3} d={handleDrawPath(i.data as MidiNoteSequence)}></path>

@@ -79,7 +79,13 @@ const addAudioElement = async (blob: Blob)=>{
   setTracks(prev=>{
     let newAudioBufferTrack: Track<AudioBuffer> = {
       data: audbuf,
-      soundMaker: player
+      soundMaker: player,
+      edits: {
+        offsetFromStart: 0,
+        trimEnd: 0,
+        endX: audbuf.duration* 2 * 18,
+        trimStart: 0,
+      } 
     };
     (newAudioBufferTrack.soundMaker as Tone.Player).buffer = new Tone.ToneAudioBuffer(audbuf);
     return [...prev, newAudioBufferTrack]
@@ -162,7 +168,7 @@ return (
 
             <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-scroll`}>
 
-            <TrackView selected={selected} setSelected={setSelected} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
+            <TrackView selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
               {tracks[selected].data instanceof AudioBuffer ? <SamplePanel setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel setTracks={setTracks} tracks={tracks} selected={selected}/>}

@@ -53,4 +53,11 @@ export interface Track<T>{
     soundMaker: SynthPack | Tone.Player,
     tempo?: string,
     timesToLoop?: number
+    edits?:{
+        trimStart?: number ,
+        endX: number ,
+        trimEnd?: number ,
+        offsetFromStart?: number, 
+
+    }
 };

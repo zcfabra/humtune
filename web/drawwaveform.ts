@@ -25,7 +25,7 @@ export const generatePathData = (audbuf: AudioBuffer) : string=>{
 const _getPeaks= (audbuf: AudioBuffer, channelData:any, peaks:any, channelNumber:number, ...args:any): Array<any>=>{
     // console.log("PEAKS:",peaks)
     // console.log("CHANNEL DATA:", channelData);
-    const count = Math.floor(audbuf.duration) * 100;
+    const count = ((audbuf.duration  )  ) *2 *18;
     const numSamps = audbuf.length / count;
     const sampStep = ~~(numSamps / 10) || 1;
     let mergedPeaks = Array.isArray(peaks) ? peaks : [];

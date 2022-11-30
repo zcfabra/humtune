@@ -15,10 +15,11 @@ interface TrackViewProps {
     globalContext: AudioContext,
     bpm: number,
     selected: number | null,
-    setSelected:React.Dispatch<React.SetStateAction<number | null>>
+    setSelected:React.Dispatch<React.SetStateAction<number | null>>,
+    setTracks: React.Dispatch<React.SetStateAction<Track<AudioBuffer | MidiNoteSequence>[]>>
 }
 
-const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelected}) => {
+const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelected, setTracks}) => {
 
     const playAll = async ()=>{
         
@@ -95,22 +96,32 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
             <span className='text-white'>BPM: {bpm}</span>
             <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={()=>tracks.length > 0 && playAll()}>&#9658;</button>
         </div>
-        <div className='w-full'>
-            <div className='w-full h-12 flex  flex-row'>
+        <div className='w-full flex flex-row'>
+            {/* <div className='w-full h-12 flex  flex-row'>
                 <div className='w-1/12 bg-black'></div>
                 <div className='w-11/12 bg-black overflow-x-scroll px-[10px]'>
                     {[...Array(100)].map((i, ix)=>(
                         <span key={ix}className={`mr-4 border-l-2 ${ix %4 ==0 ? "border-orange-400 border-l-2" : "border-gray-900"}`}></span>
                     ))}
                 </div>
+            </div> */}
+            <div className='w-1/12'>
+                {tracks.map((i, ix)=>{
+                    return <div className='w-full h-28 bg-gray-900'>
+                        <button>M</button>
+                        <button>S</button>
+                    </div>
+                })}
             </div>
-            {tracks.map((i, ix)=>{
-                return i.data instanceof AudioBuffer
-                ?
-                 <Waveform i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
-                :
-                <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
-            })}
+            <div  className='w-11/12 '>
+                {tracks.map((i, ix)=>{
+                    return i.data instanceof AudioBuffer
+                    ?
+                    <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
+                    :
+                    <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
+                })}
+            </div>
 
         </div>
     </div>

@@ -1,15 +1,17 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { generatePathData } from '../drawwaveform';
-import { Track } from '../typesandconsts';
+import { MidiNoteSequence, Track } from '../typesandconsts';
 interface WaveformProps{
     i: Track<AudioBuffer>,
     ix: number,
+    bpm: number,
     selected: number | null,
     setSelected: React.Dispatch<React.SetStateAction<number | null>>,
+    setTracks: React.Dispatch<React.SetStateAction<Track<AudioBuffer | MidiNoteSequence>[]>>
 
 }
-const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected}) => {
+const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTracks, bpm}) => {
 
     const handleWaveform = ()=>{
         const drawnData = generatePathData(i.data as AudioBuffer);
@@ -17,31 +19,47 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected}) => {
 
     }
     const [pathData, setPathData] = useState<string>("");
+    const [xBound, setXBound] = useState<number>();
 
     useEffect(()=>{
         handleWaveform();
-    }, [])
+        console.log("POP:",trackRef.current?.getBoundingClientRect().x);
+        setXBound(trackRef.current?.getBoundingClientRect().x);
+    }, []);
+
+
+    const trackRef= useRef<HTMLDivElement>(null);
+
+    const handleDrag = (e: React.DragEvent<HTMLDivElement>)=>{
+        let trim = e.pageX - xBound!;
+        console.log("TRIM: ",trim);
+        console.log("X", trackRef.current?.getBoundingClientRect().x);
+
+
+        setTracks(prev=>{
+            if (typeof prev[ix].edits !== "undefined"){
+                prev[ix].edits!.trimEnd = trim
+            }
+            return [...prev]
+        })
+
+
+    }
+
+    // const handleDragEndResetXBound = (e: React.DragEvent<HTMLDivElement>)=>{
+
+    // }
 
   return (
     <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-    <div className='w-1/12 h-full bg-gray-900 text-white p-4 flex flex-col'>
-        {/* <span className='mx-2'>{i.duration}</span> */}
-        <div className='flex flex-row'>
-            <button className='mx-2 rounded-md bg-gray-800 hover:bg-gray-700 transition-all w-8 h-8'>M</button>
-            <button className='mx-2 rounded-md bg-gray-800 hover:bg-gray-700 transition-all w-8 h-8'>S</button>
-        </div>
-       
-
-    </div>
-    <div className='w-11/12 bg-black h-full border border-gray-900'>
-        <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${Math.floor(i.data.duration) * 100}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex flex-row `}>
+    <div className='w-full bg-black h-full border border-gray-900'>
+        <div    onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>
                 <path strokeWidth={2} d={pathData}></path>
             </svg>       
-            <div className='h-full w-[3px] bg-gray-900 cursor-col-resize'></div>
+            <div ref={trackRef} draggable onDrag={handleDrag} className='h-full w-[3px] bg-transparent cursor-col-resize'></div>
         </div>
     </div>
-    {/* <div key={ix} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} className={`h-16 rounded-md cursor-pointer ${selected == ix ? "bg-purple-500" : "bg-orange-400"} ${selected==ix ? "border-purple-300" : "border-orange-300"} border-2 `} style={{width: `${i.length % 1000}px`}}>{JSON.stringify(i.length)}</div> */}
 </div>
   )
 }
