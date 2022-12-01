@@ -83,7 +83,6 @@ const addAudioElement = async (blob: Blob)=>{
       edits: {
         offsetFromStart: 0,
         trimEnd: 0,
-        endX: audbuf.duration* 2 * 18,
         trimStart: 0,
       } 
     };
@@ -134,7 +133,11 @@ const hanldeNewPianoRollTrack = ()=>{
   let priorLength = tracks.length;
   let synth = new Tone.Synth().toDestination();
   synth.volume.value = -15;
-  setTracks(prev=>[...prev, {data: newMidiTrack,timesToLoop: 1 ,soundMaker: synth ,tempo: TEMPOS.QUARTER}]);
+  setTracks(prev=>[...prev, {data: newMidiTrack,timesToLoop: 1 ,soundMaker: synth ,tempo: TEMPOS.QUARTER, edits:{
+    trimEnd: 0,
+    trimStart: 0,
+    offsetFromStart: 0
+  }}]);
   setSelected(priorLength);
   setShowPianoRoll(true);
   

@@ -1,4 +1,5 @@
 
+import { RecordWithTtl } from 'dns';
 import React, { useEffect, useRef, useState } from 'react'
 import { generatePathData } from '../drawwaveform';
 import { MidiNoteSequence, Track } from '../typesandconsts';
@@ -16,7 +17,6 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
     const handleWaveform = ()=>{
         const drawnData = generatePathData(i.data as AudioBuffer);
         setPathData(drawnData);
-
     }
     const [pathData, setPathData] = useState<string>("");
     const [xBound, setXBound] = useState<number>();
@@ -35,7 +35,6 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
         console.log("TRIM: ",trim);
         console.log("X", trackRef.current?.getBoundingClientRect().x);
 
-
         setTracks(prev=>{
             if (typeof prev[ix].edits !== "undefined"){
                 prev[ix].edits!.trimEnd = trim
@@ -50,14 +49,22 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
     // }
 
+    const handleMoveTrack = (e: React.DragEvent<HTMLDivElement>)=>{
+
+    }
+
+    const handleDragEnd = (e: React.DragEvent<HTMLDivElement>)=>{
+        e.preventDefault();
+    }
+
   return (
     <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
     <div className='w-full bg-black h-full border border-gray-900'>
-        <div    onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
+        <div  draggable onDrag={handleMoveTrack}  onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>
                 <path strokeWidth={2} d={pathData}></path>
             </svg>       
-            <div ref={trackRef} draggable onDrag={handleDrag} className='h-full w-[3px] bg-transparent cursor-col-resize'></div>
+            <div ref={trackRef} draggable onDrag={handleDrag} onDragOver={handleDragEnd} className='h-full w-[3px] bg-transparent cursor-col-resize'></div>
         </div>
     </div>
 </div>

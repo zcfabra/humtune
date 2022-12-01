@@ -51,7 +51,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                         console.log("Time of Player.now()", track.soundMaker.now());
                         console.log("Time of Tone.Transport.now()", Tone.Transport.now());
                         let start_time = diff == 0 ? time : time - diff;
-                        (track.soundMaker as Tone.Player).start(start_time).stop(start_time + track.data.duration);
+                        (track.soundMaker as Tone.Player).start(start_time, 0).stop(start_time + track.data.duration + (track.edits.trimEnd / 18 /2));
                     }, 0);
 
             } else if (isMidiSequence(track)) {

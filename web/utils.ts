@@ -69,3 +69,10 @@ export function encodeWAV(samples: Float32Array, sampleRate: number) {
       }
       return true
   }
+
+
+const pixelsToTime = (pixels:number) =>{
+
+  
+
+}
