@@ -56,7 +56,7 @@ export interface Track<T>{
     edits:{
         trimStart: number ,
         trimEnd: number ,
-        offsetFromStart?: number, 
+        offsetFromStart: number, 
 
     }
 };

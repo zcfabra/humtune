@@ -29,11 +29,14 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
 
     const trackRef= useRef<HTMLDivElement>(null);
+    const [firstDragPoint, setFirstDragPoint] = useState<number | null>(null);
+
 
     const handleDrag = (e: React.DragEvent<HTMLDivElement>)=>{
         let trim = e.pageX - xBound!;
         console.log("TRIM: ",trim);
         console.log("X", trackRef.current?.getBoundingClientRect().x);
+        if (trim < 0) {
 
         setTracks(prev=>{
             if (typeof prev[ix].edits !== "undefined"){
@@ -42,6 +45,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
             return [...prev]
         })
 
+        }
 
     }
 
@@ -50,7 +54,18 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
     // }
 
     const handleMoveTrack = (e: React.DragEvent<HTMLDivElement>)=>{
+        if (firstDragPoint == null) {
+            setFirstDragPoint(e.pageX);
+            return;
+        }
 
+        let diff =  e.pageX - firstDragPoint!;
+
+        console.log(diff);
+        setTracks(prev=>{
+            prev[ix].edits.offsetFromStart = diff;
+            return [...prev]
+        })
     }
 
     const handleDragEnd = (e: React.DragEvent<HTMLDivElement>)=>{
@@ -59,12 +74,12 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
   return (
     <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-    <div className='w-full bg-black h-full border border-gray-900'>
-        <div  draggable onDrag={handleMoveTrack}  onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
+    <div onDragEnd={handleDragEnd}className='z-10 w-full bg-black h-full border border-gray-900'>
+        <div  draggable onDrag={handleMoveTrack} onDragOver={handleDragEnd} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`, marginLeft: `${i.edits.offsetFromStart}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>
                 <path strokeWidth={2} d={pathData}></path>
             </svg>       
-            <div ref={trackRef} draggable onDrag={handleDrag} onDragOver={handleDragEnd} className='h-full w-[3px] bg-transparent cursor-col-resize'></div>
+            <div ref={trackRef} draggable onDrag={handleDrag}  onDragOver={handleDragEnd} className='h-full z-20 w-[3px] bg-black select-none cursor-col-resize'></div>
         </div>
     </div>
 </div>
