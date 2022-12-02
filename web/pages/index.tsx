@@ -174,7 +174,7 @@ return (
             <TrackView selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel setTracks={setTracks} tracks={tracks} selected={selected}/>}
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
             {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>
