@@ -8,50 +8,62 @@ interface WaveformProps{
     ix: number,
     bpm: number,
     selected: number | null,
+    leftToggleRef: React.RefObject<HTMLDivElement>,
     setSelected: React.Dispatch<React.SetStateAction<number | null>>,
     setTracks: React.Dispatch<React.SetStateAction<Track<AudioBuffer | MidiNoteSequence>[]>>
 
 }
-const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTracks, bpm}) => {
+const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTracks, bpm, leftToggleRef}) => {
 
     const handleWaveform = ()=>{
         const drawnData = generatePathData(i.data as AudioBuffer);
         setPathData(drawnData);
     }
     const [pathData, setPathData] = useState<string>("");
-    const [xBound, setXBound] = useState<number>();
+    const [xBoundResize, setXBoundResize] = useState<number>();
+    const [xBoundTrack, setXBoundTrack] = useState<number>();
+    const [flipped, setFlipped] = useState<boolean>(false);
 
     useEffect(()=>{
         handleWaveform();
-        console.log("POP:",trackRef.current?.getBoundingClientRect().x);
-        setXBound(trackRef.current?.getBoundingClientRect().x);
+        console.log("POP:",trackResizeRef.current?.getBoundingClientRect().x);
+        setXBoundResize(trackRef.current?.getBoundingClientRect().width);
+        setXBoundTrack(trackRef.current?.getBoundingClientRect().x);
     }, []);
 
 
-    const trackRef= useRef<HTMLDivElement>(null);
+    const trackResizeRef= useRef<HTMLDivElement>(null);
+    const trackRef = useRef<HTMLDivElement>(null);
     const [firstDragPoint, setFirstDragPoint] = useState<number | null>(null);
 
 
-    const handleDrag = (e: React.DragEvent<HTMLDivElement>)=>{
-        let trim = e.pageX - xBound!;
+    const handleDragTrimEnd = (e: React.DragEvent<HTMLDivElement>)=>{
+        // let trim = e.pageX - xBoundResize!;
+        let trim = e.pageX - (xBoundTrack! + xBoundResize!)
         console.log("TRIM: ",trim);
-        console.log("X", trackRef.current?.getBoundingClientRect().x);
+        console.log("X", trackResizeRef.current?.getBoundingClientRect().x);
         if (trim < 0) {
 
-        setTracks(prev=>{
-            if (typeof prev[ix].edits !== "undefined"){
-                prev[ix].edits!.trimEnd = trim
-            }
-            return [...prev]
-        })
+            setTracks(prev=>{
+                if (typeof prev[ix].edits !== "undefined"){
+                    prev[ix].edits!.trimEnd = trim; 
+                }
+                return [...prev]
+            })
 
         }
 
     }
 
-    // const handleDragEndResetXBound = (e: React.DragEvent<HTMLDivElement>)=>{
-
-    // }
+    const handleDragEndResetXBound = (e: React.DragEvent<HTMLDivElement>)=>{
+        e.preventDefault();
+        console.log("RESET")
+        // setXBoundResize(_=>trackResizeRef.current?.getBoundingClientRect().x);
+        // setXBoundTrack(_=>i.edits.offsetFromStart);
+        setXBoundTrack(trackRef.current?.getBoundingClientRect().x);
+        setFirstDragPoint(null);
+        setFlipped(true);
+    }
 
     const handleMoveTrack = (e: React.DragEvent<HTMLDivElement>)=>{
         if (firstDragPoint == null) {
@@ -60,27 +72,37 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
         }
 
         let diff =  e.pageX - firstDragPoint!;
-
-        console.log(diff);
+        console.log("TRACK WIDTH", trackRef.current?.getBoundingClientRect().width);
+        console.log("TOGGLE WIDTH",leftToggleRef.current?.getBoundingClientRect().width);
+        console.log("CURSOR", e.pageX)
+        console.log("FIRST DRAG", firstDragPoint)
+        console.log("XBoundResize", xBoundResize);
+        console.log("XBoundTrack", xBoundTrack)
+        console.log("DIFF",diff)
         setTracks(prev=>{
-            prev[ix].edits.offsetFromStart = diff;
-            return [...prev]
+            prev[ix].edits.offsetFromStart = e.pageX - (firstDragPoint - xBoundTrack!) - leftToggleRef.current?.getBoundingClientRect().width! ;
+            return [...prev];
         })
     }
 
-    const handleDragEnd = (e: React.DragEvent<HTMLDivElement>)=>{
+    const handleResizeDragEnd = (e: React.DragEvent<HTMLDivElement>)=>{
+        setXBoundResize(_=>trackResizeRef.current?.getBoundingClientRect().x);
+    }
+
+    const killDragOverDefault = (e: React.DragEvent<HTMLDivElement>)=>{
+        console.log("DRAG OVER")
         e.preventDefault();
     }
 
   return (
     <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-    <div onDragEnd={handleDragEnd}className='z-10 w-full bg-black h-full border border-gray-900'>
-        <div  draggable onDrag={handleMoveTrack} onDragOver={handleDragEnd} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`, marginLeft: `${i.edits.offsetFromStart}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
+    <div  onDragOver={killDragOverDefault}className='z-10 w-full bg-black h-full border border-gray-900 flex flex-row'>
+        <div ref={trackRef}  draggable onDragEnd={handleDragEndResetXBound} onDrag={handleMoveTrack}  onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`, marginLeft: `${i.edits.offsetFromStart}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>
                 <path strokeWidth={2} d={pathData}></path>
             </svg>       
-            <div ref={trackRef} draggable onDrag={handleDrag}  onDragOver={handleDragEnd} className='h-full z-20 w-[3px] bg-black select-none cursor-col-resize'></div>
         </div>
+            <div ref={trackResizeRef} draggable onDrag={handleDragTrimEnd}   className='h-full z-20 w-[3px] bg-red-500 select-none cursor-col-resize'></div>
     </div>
 </div>
   )

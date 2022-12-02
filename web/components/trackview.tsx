@@ -51,7 +51,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                         console.log("Time of Player.now()", track.soundMaker.now());
                         console.log("Time of Tone.Transport.now()", Tone.Transport.now());
                         let start_time = diff == 0 ? time : time - diff;
-                        (track.soundMaker as Tone.Player).start(start_time + (track.edits.offsetFromStart / 18/2), 0).stop(start_time + track.data.duration + (track.edits.trimEnd / 18 /2));
+                        (track.soundMaker as Tone.Player).start(start_time + (track.edits.offsetFromStart / 18/2), 0).stop(start_time + (track.edits.offsetFromStart / 18 /2)+track.data.duration + (track.edits.trimEnd / 18 /2));
                     }, 0);
 
             } else if (isMidiSequence(track)) {
@@ -90,6 +90,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
 
     }
 
+    const leftToggleRef = useRef<HTMLDivElement>(null);
   return (
     <div className='w-full bg-black h-full flex flex-col items-center'>
         <div className='w-full h-16 border-b border-black flex flex-row justify-center items-center'>
@@ -105,7 +106,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                     ))}
                 </div>
             </div> */}
-            <div className='w-1/12'>
+            <div ref={leftToggleRef} className='w-1/12'>
                 {tracks.map((i, ix)=>{
                     return <div className='w-full h-28 bg-gray-900'>
                         <button>M</button>
@@ -117,7 +118,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                 {tracks.map((i, ix)=>{
                     return i.data instanceof AudioBuffer
                     ?
-                    <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
+                    <Waveform leftToggleRef={leftToggleRef}bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
                     :
                     <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
                 })}
