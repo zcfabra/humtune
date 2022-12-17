@@ -169,7 +169,7 @@ return (
         </div>
         <div className='w-full h-full flex flex-row'>
 
-            <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-scroll`}>
+            <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-auto`}>
 
             <TrackView selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>

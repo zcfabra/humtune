@@ -16,7 +16,7 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected}) =
     })
   }
   return (
-    <div className='w-full bg-red-500'>
+    <div className='w-full text-white flex flex-col '>
       <span>Volume</span>
       <input value={track.soundMaker.volume.value} onChange={handleVolumeChange} type="range" min ={-20} step={0.1} max={20} />
     </div>

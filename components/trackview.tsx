@@ -20,10 +20,9 @@ interface TrackViewProps {
 }
 
 const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelected, setTracks}) => {
+    
 
     const playAll = async ()=>{
-        
-        
         Tone.Transport.stop();
         Tone.Transport.position = "0:0:0";
         console.log("Transport Position:", Tone.Transport.position);
@@ -95,7 +94,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
     <div className='w-full bg-black h-full flex flex-col items-center'>
         <div className='w-full h-16 border-b border-black flex flex-row justify-center items-center'>
             <span className='text-white'>BPM: {bpm}</span>
-            <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={()=>tracks.length > 0 && playAll()}>&#9658;</button>
+              <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={() => tracks.length > 0 && playAll()}>{Tone.Transport.state == "started"?<span>&#9658;</span> : <span>&#9608;</span>}</button>
         </div>
         <div className='w-full flex flex-row'>
             {/* <div className='w-full h-12 flex  flex-row'>

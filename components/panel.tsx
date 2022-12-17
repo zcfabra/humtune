@@ -63,14 +63,14 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
                 });
                 break;
 
-            case INSTRUMENTMAP.PolySynth:
-                let instrument6 = new Tone.PolySynth().toDestination();
-                instrument6.volume.value=-15;
-                setTracks(prev=>{
-                    prev[selected].soundMaker = instrument6
-                    return [...prev]
-                });
-                break;
+            // case INSTRUMENTMAP.PolySynth:
+            //     let instrument6 = new Tone.PolySynth().toDestination();
+            //     instrument6.volume.value=-15;
+            //     setTracks(prev=>{
+            //         prev[selected].soundMaker = instrument6
+            //         return [...prev]
+            //     });
+            //     break;
             case INSTRUMENTMAP.MetalSynth:
                 let instrument7 = new Tone.MetalSynth().toDestination();
                 instrument7.volume.value= -15;
@@ -124,15 +124,15 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
         })
     }
     return (
-        <div className={`w-full overflow-y-scroll text-white p-4 bg-black border-x border-gray-900 flex flex-col ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
+        <div className={`w-full overflow-y-auto text-white p-4 bg-black border-x border-gray-900 flex flex-col ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
             <span>Instrument</span>
-            <select value={tracks[selected].soundMaker.name} onChange={handleSelectInstrument} className=" h-12 text-black rounded-md w-6/12"name="" id="">
+            <select value={tracks[selected].soundMaker.name} onChange={handleSelectInstrument} className=" h-12 bg-black border border-gray-300 text-white  rounded-md w-6/12"name="" id="">
                 {instruments.map((i,ix)=>(
                     <option key={ix} value={i}>{i}</option>
                 ))}
             </select>
             <span>Tempo</span>
-            <select className='text-black h-12 rounded-md w-6/12' onChange={handleSelectTempo} value={Object.keys(TEMPOS).find(key => TEMPOS[key as keyof object] === tracks[selected].tempo)} name="" id="">
+            <select className=' h-12 rounded-md w-6/12 bg-black border border-gray-300 text-white ' onChange={handleSelectTempo} value={Object.keys(TEMPOS).find(key => TEMPOS[key as keyof object] === tracks[selected].tempo)} name="" id="">
                 {Object.keys(TEMPOS).map((i, ix)=>(
                     <option key = {ix}value={i}>{i}</option>
                 )
@@ -140,7 +140,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
 
             </select>
             <span>Loop</span>
-            <select value={tracks[selected].timesToLoop}  className='text-black rounded-md w-6/12 h-12' onChange={handleSetBars} name="" id="">
+            <select value={tracks[selected].timesToLoop}  className=' bg-black border border-gray-300 text-white rounded-md w-6/12 h-12' onChange={handleSetBars} name="" id="">
                 {
                 [...Array(8)].map((i, ix)=>(
                     <option value={i} key={ix}>{ix + 1}</option>
