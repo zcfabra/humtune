@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import {DDSP, NoteSequence, SPICE} from "@magenta/music";
 import { encodeWAV } from '../utils'
 import { TEMPOS, Track } from  "../typesandconsts"
@@ -15,17 +15,26 @@ import * as Tone from "tone"
 import SynthPanel from '../components/panel'
 import SamplePanel from '../components/samplepanel'
 import TrackView from '../components/trackview';
+const useIsPlaying = ()=>{
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  return {
+    isPlaying, setIsPlaying
+  }
+}
+
+export const isPlayingContext = createContext<{isPlaying: boolean, setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>}>({} as ReturnType<typeof useIsPlaying>);
 
 
 
-export type SynthPack = Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.PolySynth | Tone.MonoSynth | Tone.MetalSynth | Tone.MembraneSynth | Tone.PluckSynth | Tone.DuoSynth | Tone.NoiseSynth;
+export type SynthPack = Tone.Synth | Tone.AMSynth | Tone.FMSynth  | Tone.MonoSynth  | Tone.MembraneSynth | Tone.PluckSynth | Tone.DuoSynth
+// metal,poly, noise
 
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
   
   const [tracks, setTracks] = useState<Track<MidiNoteSequence | AudioBuffer>[]>([]);
-  const [resultBuffer, setResultBuffer] = useState<string | null>();
+  // const [resultBuffer, setResultBuffer] = useState<string | null>();
   const [showPianoRoll, setShowPianoRoll] = useState<boolean>(false);
   
   const [bpm, setBpm] = useState<number>();
@@ -34,7 +43,7 @@ const Home: NextPage = () => {
   const [globalContext, setGlobalContext] = useState<AudioContext>();
   
   
-  
+
   useEffect(()=>{
     // Tone.setContext(new AudioContext());
     selectedRef.current = selected;
@@ -75,7 +84,7 @@ const addAudioElement = async (blob: Blob)=>{
   let buf = await blob.arrayBuffer();
   let audbuf =  await Tone.context.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
-  const player = new Tone.Player().toDestination();
+  const player = new Tone.Player().toDestination().sync();
   setTracks(prev=>{
     let newAudioBufferTrack: Track<AudioBuffer> = {
       data: audbuf,
@@ -129,9 +138,9 @@ const net = async ()=>{
 
 }
 const hanldeNewPianoRollTrack = ()=>{
-  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration:12.8 } 
+  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration: 1 / (bpm! / 60 )* 16  } 
   let priorLength = tracks.length;
-  let synth = new Tone.Synth().toDestination();
+  let synth = new Tone.Synth().toDestination().sync();
   synth.volume.value = -15;
   setTracks(prev=>[...prev, {data: newMidiTrack,timesToLoop: 1 ,soundMaker: synth ,tempo: TEMPOS.QUARTER, edits:{
     trimEnd: 0,
@@ -161,6 +170,8 @@ useEffect(()=>{
 },[tracks])
 
 return (
+  <isPlayingContext.Provider value={useIsPlaying()}>
+
       <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
           <button onClick={()=>hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
@@ -183,6 +194,8 @@ return (
    
 
       </div>
+
+  </isPlayingContext.Provider>
     )
 
 }

@@ -25,7 +25,7 @@ export const tempoWidth = {
 }
 
 
-export const instruments = ["Synth", "AMSynth", "FMSynth", "DuoSynth", "MembraneSynth", "MetalSynth", "PluckSynth", "MonoSynth"]
+export const instruments = ["Synth", "AMSynth", "FMSynth", "DuoSynth", "MembraneSynth", "MonoSynth"]
 
 export const INSTRUMENTMAP ={
     Synth: "Synth",
@@ -33,8 +33,8 @@ export const INSTRUMENTMAP ={
     FMSynth: "FMSynth",
     DuoSynth: "DuoSynth",
     MembraneSynth: "MembraneSynth",
-    MetalSynth: "MetalSynth",
-    PluckSynth: "PluckSynth",
+    // MetalSynth: "MetalSynth",
+    // PluckSynth: "PluckSynth",
     MonoSynth: "MonoSynth"
 }
 
