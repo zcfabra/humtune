@@ -65,7 +65,12 @@ export const stopTheWorld = (tracks: Track<AudioBuffer | SynthPack>[]) => {
 };
 
 export const  MODEL_ENDPOINT = "https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/";
-
+export const copyFromBufToBuf = (sourceBuf: AudioBuffer, targetBuf: AudioBuffer) => {
+  for (let channelI = 0; channelI < targetBuf.numberOfChannels; ++channelI) {
+    const samples = sourceBuf.getChannelData(channelI);
+    targetBuf.copyToChannel(samples, channelI);
+  }
+}
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
@@ -218,9 +223,12 @@ const addAudioElement = async (blob: Blob)=>{
   let audbuf =  await Tone.context.decodeAudioData(buf);
   console.log("AUDIO BUFFER: ", audbuf);
   const player = new Tone.Player().toDestination();
+  const originalAudBuf = await Tone.context.createBuffer(audbuf.numberOfChannels, audbuf.length, audbuf.sampleRate);
+  copyFromBufToBuf(audbuf, originalAudBuf);
   setTracks(prev=>{
     let newAudioBufferTrack: Track<AudioBuffer> = {
       data: audbuf,
+      originalData: originalAudBuf,
       soundMaker: player,
       edits: {
         offsetFromStart: 0,

@@ -3,6 +3,7 @@ import { MidiNoteSequence } from '../typesandconsts'
 import { Track } from '../typesandconsts'
 import { flushSync } from 'react-dom';
 import { DDSP } from '@magenta/music';
+import { copyFromBufToBuf } from '../pages';
 
 interface SamplePanelProps{
     track: Track<AudioBuffer>,
@@ -45,7 +46,13 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
   useEffect(()=>{
     console.log("CHANGEd");
     setIsLoading(false);
-  }, [track])
+  }, [track]);
+  const handleRevertTrack = ()=>{
+    setTracks(prev=>{
+      copyFromBufToBuf(prev[selected].originalData as AudioBuffer, prev[selected].data as AudioBuffer)
+      return [...prev];
+    })
+  }
   return (
     <div className='w-full text-white flex flex-col mt-28 space-y-2 flex-1'>
       <span>Instrument</span>
@@ -65,6 +72,7 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg> 
       : <span>Apply</span>}</button>}
+      <button onClick={handleRevertTrack} className='w-10/12 h-12 rounded-md bg-black border-orange-500 border hover:bg-orange-500 text-orange-500 hover:text-white cursor-pointer transition-all'>Remove All</button>
       <span className=''>Volume</span>
       <input value={track.soundMaker.volume.value} onChange={handleVolumeChange} type="range" min ={-20} step={0.1} max={20} />
     </div>

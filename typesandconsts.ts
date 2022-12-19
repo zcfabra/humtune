@@ -49,6 +49,7 @@ export const TEMPOS= {
 
 export interface Track<T>{
     data: AudioBuffer | MidiNoteSequence,
+    originalData?: AudioBuffer,
     soundMaker: SynthPack | Tone.Player,
     tempo?: string,
     timesToLoop?: number,
