@@ -408,16 +408,18 @@ return (
   <isPlayingContext.Provider value={isPlayingUsed}>
 
       <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
-        <div className='absolute top-0 left-0 w-full h-24 border-b border-gray-900 flex flex-row items-center'>
+        <div className='absolute top-0 left-0 w-full h-24 border-b border-gray-900 flex flex-row justify-between items-center'>
           <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
             <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
             <AudioRecorder onRecordingComplete={addAudioElement} />
             {/* {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>} */}
 
           </div>
-          <div className='ml-24 h-16 flex-1 flex-row justify-center items-center text-orange-500'>
-            <button className='text-3xl font-bold mx-2' onClick={() => setBpm(prev => prev! > 0 ? prev! - 1 : prev)}>-</button><span className='text-white'>BPM: {bpm}</span><button className="text-3xl mx-2 font-orange-500 font-bold" onClick={() => setBpm(prev => prev! + 1)}>+</button>
+          <div className=' h-24  flex flex-row items-center text-orange-500'>
             <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={() => tracks.length > 0 && playAll()}>{!isPlayingUsed.isPlaying ? <span>&#9658;</span> : <span> &#9632;</span>}</button>
+          </div>
+          <div className='h-full flex items-center text-orange-500 px-4'>
+            <button className=' text-3xl font-bold ' onClick={() => setBpm(prev => prev! > 0 ? prev! - 1 : prev)}>-</button><span className='text-white mx-4'>BPM: {bpm}</span><button className="text-3xl mx-2 font-orange-500 font-bold" onClick={() => setBpm(prev => prev! + 1)}>+</button>
           </div>
 
           {/* <div className='h-full  flex items-center p-8'>
