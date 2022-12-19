@@ -13,7 +13,6 @@ interface PanelProps{
     tracks: Track<MidiNoteSequence| AudioBuffer>[],
     setTracks: React.Dispatch<React.SetStateAction<Track<MidiNoteSequence | AudioBuffer>[]>>,
     bpm: number,
-
 }
 
 const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => {
@@ -136,7 +135,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => 
         })
     }
     return (
-        <div className={`w-full overflow-y-auto text-white p-4 bg-black border-x border-gray-900 flex flex-col space-y-2 ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
+        <div onDragOver={e=>e.preventDefault()} onDrop={e=>e.preventDefault()} className={`w-full overflow-y-auto text-white p-4 bg-black border-x border-gray-900 flex flex-col space-y-2 ${selected && tracks[selected].data instanceof AudioBuffer ? "h-full": "h-4/6"}`}>
             <span>Instrument</span>
             <select value={tracks[selected].soundMaker.name} onChange={handleSelectInstrument} className=" h-12 bg-black border border-gray-300 text-white  rounded-md w-8/12 px-2"name="" id="">
                 {instruments.map((i,ix)=>(

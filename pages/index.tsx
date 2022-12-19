@@ -117,6 +117,86 @@ const Home: NextPage = () => {
       setModel(spice);
       console.log(spice);
   })();
+    if (tracks.length == 0) {
+
+      console.log(Tone.Transport.bpm.value);
+      let notes: (string | null)[] = [...Array(16)].map(i => null);
+      let toDeploy = ["G2", "C2", "D2", "E2"];
+      let x=0;
+      for (let i = 0; i < 16; i++) {
+        notes[i] = toDeploy[x];
+        if (x==3){
+          x=0
+        } else {
+          x +=1;
+        }
+      }
+      let seq: MidiNoteSequence = {
+        data: notes,
+        duration: 1 / (Tone.Transport.bpm.value / 60) * 16
+      };
+      let synth = new Tone.DuoSynth().toDestination().sync();
+      synth.volume.value = -12;
+      const trackToAdd: Track<MidiNoteSequence> = {
+        data: seq,
+        soundMaker: synth,
+        tempo: TEMPOS.EIGHTH,
+        timesToLoop: 4,
+        edits: { offsetFromStart: 0, trimEnd: 0, trimStart: 0 }
+      };
+      let notes2: (string | null)[] = [...Array(16)].map(i => null);
+      let toDeploy2 = ["G2", "C2", "D2", "E2"];
+      let x2 = 0;
+      for (let i = 0; i < 16; i++) {
+        notes[i] = toDeploy[x2];
+        if (x2 == 3) {
+          x2 = 0
+        } else {
+          x2 += 1;
+        }
+      };
+      let synth2 = new Tone.MonoSynth().toDestination().sync();
+      let seq2: MidiNoteSequence = {
+        data: notes,
+        duration: Tone.Time(TEMPOS.WHOLE).toSeconds() * 16
+      };
+
+      const trackToAlsoAdd: Track<MidiNoteSequence> = {
+        data: seq2,
+        soundMaker: synth2, 
+        tempo: TEMPOS.WHOLE,
+        timesToLoop: 1,
+        edits: { offsetFromStart: 0, trimEnd: 0, trimStart: 0 }
+      };
+
+      let x3 = 0;
+      for (let i = 0; i < 16; i++) {
+        notes[i] = toDeploy[x3];
+        if (x3 == 3) {
+          x3 = 0
+        } else {
+          x3 += 1;
+        }
+      }
+      let seq3: MidiNoteSequence = {
+        data: notes,
+        duration: 1 / (Tone.Transport.bpm.value / 60) * 16
+      };
+      let synth3 = new Tone.FMSynth().toDestination().sync();
+      synth.volume.value = -12;
+      const trackToAdd3: Track<MidiNoteSequence> = {
+        data: seq3,
+        soundMaker: synth3,
+        tempo: TEMPOS.EIGHTH,
+        timesToLoop: 4,
+        edits: { offsetFromStart: 18  * 2 * 16, trimEnd: 0, trimStart: 0 }
+      };
+
+      setTracks(prev => {
+        return [...prev, trackToAdd, trackToAlsoAdd, trackToAdd3];
+      });
+      setSelected(1);
+    }
     
   }, [])
 // https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/trumpet/group1-shard1of1.bin
@@ -271,7 +351,8 @@ useEffect(()=>{
 
             for (let note of (track.data as MidiNoteSequence).data) {
               if (note != null) {
-                (track.soundMaker as SynthPack).triggerAttackRelease(note, Tone.Time(track.tempo!).toSeconds(), Tone.Time("4n").toSeconds() + offset);
+                console.log("TIME WITH OFFSET",Tone.Time("4n").toSeconds() + track.edits.offsetFromStart / 18 * Tone.Time("4n").toSeconds());
+                (track.soundMaker as SynthPack).triggerAttackRelease(note, Tone.Time(track.tempo!).toSeconds(), Tone.Time("4n").toSeconds() + track.edits.offsetFromStart /18 * Tone.Time("4n").toSeconds() + offset);
               }
               offset += Tone.Time(track.tempo).toSeconds();
             }
@@ -293,7 +374,33 @@ useEffect(()=>{
 
 
 
-  }
+  };
+type SaveType={
+  type: string,
+  content: (string|null| Float32Array)[] | (string|null)[][] | Blob;
+
+}
+// const handleSaveFile = ()=>{
+//   for (let track of tracks){
+//     if (track.data instanceof AudioBuffer ){
+//       let data=[]
+//       for (let x=0; x< (track.data as AudioBuffer).numberOfChannels; x++){
+//         data.push((track.data as AudioBuffer).getChannelData(x).);
+//       };
+//       let out: SaveType = {
+//         type: "AudioBuffer",
+//         content: data
+//       }
+//     }
+//   }
+//   const fileData = JSON.stringify(tracks);
+//   const blob = new Blob([fileData], {type: "text/plain"});
+//   const url = URL.createObjectURL(blob);
+//   const link = document.createElement("a");
+//   link.download = "humtune.json";
+//   link.href = url;
+//   link.click();
+// };
 
 
 
@@ -302,16 +409,20 @@ return (
 
       <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 w-full h-24 border-b border-gray-900 flex flex-row items-center'>
-        <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
-          <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
-          <AudioRecorder onRecordingComplete={addAudioElement} />
-          {/* {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>} */}
+          <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
+            <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
+            <AudioRecorder onRecordingComplete={addAudioElement} />
+            {/* {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>} */}
 
-        </div>
-        <div className='ml-24 h-16 flex-1 flex-row justify-center items-center text-orange-500'>
-          <button className='text-3xl font-bold mx-2' onClick={() => setBpm(prev => prev! > 0 ? prev! - 1 : prev)}>-</button><span className='text-white'>BPM: {bpm}</span><button className="text-3xl mx-2 font-orange-500 font-bold" onClick={() => setBpm(prev => prev! + 1)}>+</button>
-          <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={() => tracks.length > 0 && playAll()}>{!isPlayingUsed.isPlaying ? <span>&#9658;</span> : <span> &#9632;</span>}</button>
-        </div>
+          </div>
+          <div className='ml-24 h-16 flex-1 flex-row justify-center items-center text-orange-500'>
+            <button className='text-3xl font-bold mx-2' onClick={() => setBpm(prev => prev! > 0 ? prev! - 1 : prev)}>-</button><span className='text-white'>BPM: {bpm}</span><button className="text-3xl mx-2 font-orange-500 font-bold" onClick={() => setBpm(prev => prev! + 1)}>+</button>
+            <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={() => tracks.length > 0 && playAll()}>{!isPlayingUsed.isPlaying ? <span>&#9658;</span> : <span> &#9632;</span>}</button>
+          </div>
+
+          {/* <div className='h-full  flex items-center p-8'>
+            <button onClick={handleSaveFile} className='w-32 h-12 rounded-md bg-orange-500 hover:bg-purple-500 transition-all text-white cursor-pointer'>Save</button>
+          </div> */}
         </div>
         
         <div className='w-full h-full flex flex-row' onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>e.preventDefault()}>
@@ -321,7 +432,7 @@ return (
             <TrackView playAll={playAll}setBpm={setBpm} selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selectedInstrument={"Trumpet"} net={net} selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selectedInstrument={"Trumpet"} net={net}selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
             {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>

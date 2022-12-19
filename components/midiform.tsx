@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { MidiNoteSequence, notesMap, tempoWidth } from '../typesandconsts';
 import { notes } from '../typesandconsts';
 import { Track } from '../typesandconsts';
@@ -12,10 +12,17 @@ interface MidiFormProps{
 }
 const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTracks}) => {
     const [firstDragPoint, setFirstDragPoint] = useState<number| null>(null);
+    const [xBoundTrack, setXBoundTrack] = useState<number>();
+    const trackRef = useRef<HTMLDivElement>(null);
+
+
+    useEffect(()=>{
+        setXBoundTrack(trackRef!.current!.getBoundingClientRect().x);
+    }, [])
     const generatePathData = (seq: MidiNoteSequence): string=>{
         let out = "";
         let h = 10
-        let w = 10;
+        let w = 0;
         console.log("IDATA:", seq.data)
         for (let bar = 0; bar < i.timesToLoop!; bar++){
 
@@ -35,27 +42,37 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
     const handleDrawPath = (i: MidiNoteSequence)=>{
         const pathData = generatePathData(i)
         return pathData
+    };
+    const roundToNearest = (n: number, toRound: number)=>{
+        
+        return Math.round(toRound / n) * n;
     }
     const handleDragTrack = (e: React.DragEvent<HTMLDivElement>)=>{
         if (firstDragPoint == null){
             setFirstDragPoint(e.pageX);
         } else {
-            let diff = e.pageX - firstDragPoint;
+            let diff = e.pageX - (firstDragPoint - xBoundTrack!);
             setTracks(prev=>{
-                prev[selected!].edits.offsetFromStart = diff >= 0 ? diff : 0;
+                prev[ix].edits.offsetFromStart = diff >= 0 ? roundToNearest(18 , diff) : 0;
                 return [...prev]
             })
         }
 
-    }
+    };
 
+    const handleDragEndReset = (e: React.DragEvent<HTMLDivElement>)=>{
+        e.preventDefault();
+        setFirstDragPoint(null);
+        setXBoundTrack(trackRef.current?.getBoundingClientRect().x);
+
+    }
   
 
     return (
-        <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
+        <div key={ix} className='w-full h-28 bg-gray-900 flex flex-row items-center'>
        
-        <div className='relative w-full bg-black h-full border border-gray-900'>
-            <div draggable onDrag={handleDragTrack} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{marginLeft: `${i.edits.offsetFromStart}px`,width: `${10 + (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
+        <div className='relative w-full bg-black h-full border-b border-gray-900'>
+            <div ref={trackRef} draggable onDragEnd={handleDragEndReset} onDrag={handleDragTrack} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{marginLeft: `${i.edits.offsetFromStart}px`,width: `${ (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
                 <svg className={`w-full stroke-black`}>
                     <path strokeWidth={3} d={handleDrawPath(i.data as MidiNoteSequence)}></path>
                 </svg>    
