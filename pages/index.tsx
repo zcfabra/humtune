@@ -305,7 +305,7 @@ return (
         <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
           <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
           <AudioRecorder onRecordingComplete={addAudioElement} />
-          {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>}
+          {/* {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>} */}
 
         </div>
         <div className='ml-24 h-16 flex-1 flex-row justify-center items-center text-orange-500'>
@@ -321,7 +321,7 @@ return (
             <TrackView playAll={playAll}setBpm={setBpm} selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selectedInstrument={"Trumpet"} net={net} selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
             {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>

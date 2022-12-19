@@ -60,7 +60,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                     ?
                     <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
                     :
-                    <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
+                    <MidiForm setTracks={setTracks}i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
                 })}
             </div>
 

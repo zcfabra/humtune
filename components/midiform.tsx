@@ -8,8 +8,10 @@ interface MidiFormProps{
     selected: number | null,
     setSelected: React.Dispatch<React.SetStateAction<number | null>>,
     i: Track<MidiNoteSequence>,
+    setTracks: React.Dispatch<React.SetStateAction<Track<AudioBuffer | MidiNoteSequence>[]>>;
 }
-const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
+const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTracks}) => {
+    const [firstDragPoint, setFirstDragPoint] = useState<number| null>(null);
     const generatePathData = (seq: MidiNoteSequence): string=>{
         let out = "";
         let h = 10
@@ -34,6 +36,18 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
         const pathData = generatePathData(i)
         return pathData
     }
+    const handleDragTrack = (e: React.DragEvent<HTMLDivElement>)=>{
+        if (firstDragPoint == null){
+            setFirstDragPoint(e.pageX);
+        } else {
+            let diff = e.pageX - firstDragPoint;
+            setTracks(prev=>{
+                prev[selected!].edits.offsetFromStart = diff >= 0 ? diff : 0;
+                return [...prev]
+            })
+        }
+
+    }
 
   
 
@@ -41,7 +55,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i}) => {
         <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
        
         <div className='relative w-full bg-black h-full border border-gray-900'>
-            <div onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${10 + (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
+            <div draggable onDrag={handleDragTrack} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{marginLeft: `${i.edits.offsetFromStart}px`,width: `${10 + (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>
                 <svg className={`w-full stroke-black`}>
                     <path strokeWidth={3} d={handleDrawPath(i.data as MidiNoteSequence)}></path>
                 </svg>    
