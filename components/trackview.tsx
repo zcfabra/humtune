@@ -27,9 +27,14 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
     
     // const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const isPlayingUsed = useContext(isPlayingContext);
-   
+    const killDragOver = (e: React.DragEvent<HTMLDivElement>)=>{
+        console.log("YO YO");
+        e.preventDefault();
+        e.stopPropagation();
 
-    const leftToggleRef = useRef<HTMLDivElement>(null);
+    }
+
+
   return (
     <div className='w-full bg-black h-full flex flex-col items-center'>
      
@@ -49,11 +54,11 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                     </div>
                 })}
             </div> */}
-            <div  className='w-12/12 '>
+            <div  className='w-full ' onDrop={killDragOver}>
                 {tracks.map((i, ix)=>{
                     return i.data instanceof AudioBuffer
                     ?
-                    <Waveform leftToggleRef={leftToggleRef}bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
+                    <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
                     :
                     <MidiForm i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
                 })}

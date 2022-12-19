@@ -8,12 +8,12 @@ interface WaveformProps{
     ix: number,
     bpm: number,
     selected: number | null,
-    leftToggleRef: React.RefObject<HTMLDivElement>,
+
     setSelected: React.Dispatch<React.SetStateAction<number | null>>,
     setTracks: React.Dispatch<React.SetStateAction<Track<AudioBuffer | MidiNoteSequence>[]>>
 
 }
-const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTracks, bpm, leftToggleRef}) => {
+const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTracks, bpm}) => {
 
     const handleWaveform = ()=>{
         const drawnData = generatePathData(i.data as AudioBuffer);
@@ -38,11 +38,12 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
 
     const handleDragTrimEnd = (e: React.DragEvent<HTMLDivElement>)=>{
+        console.log(i.data.duration * 2 *18)
         // let trim = e.pageX - xBoundResize!;
         let trim = e.pageX - (xBoundTrack! + xBoundResize!)
         console.log("TRIM: ",trim);
         console.log("X", trackResizeRef.current?.getBoundingClientRect().x);
-        if (trim < 0) {
+        if (trim < 0 && Math.abs(trim) < (i.data.duration) * 2 * 18) {
 
             setTracks(prev=>{
                 if (typeof prev[ix].edits !== "undefined"){
@@ -73,14 +74,14 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
         let diff =  e.pageX - firstDragPoint!;
         console.log("TRACK WIDTH", trackRef.current?.getBoundingClientRect().width);
-        console.log("TOGGLE WIDTH",leftToggleRef.current?.getBoundingClientRect().width);
+        // console.log("TOGGLE WIDTH",leftToggleRef.current?.getBoundingClientRect().width);
         console.log("CURSOR", e.pageX)
         console.log("FIRST DRAG", firstDragPoint)
         console.log("XBoundResize", xBoundResize);
         console.log("XBoundTrack", xBoundTrack)
         console.log("DIFF",diff)
         
-        let calculated_offset = e.pageX - (firstDragPoint - xBoundTrack!) - leftToggleRef.current?.getBoundingClientRect().width!;
+        let calculated_offset = e.pageX - (firstDragPoint - xBoundTrack!);
 
         setTracks(prev=>{
             prev[ix].edits.offsetFromStart = calculated_offset < 0 ? 0:calculated_offset ;
@@ -98,8 +99,8 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
     }
 
   return (
-    <div key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
-    <div  onDragOver={killDragOverDefault}className='z-10 w-full bg-black h-full border border-gray-900 flex flex-row'>
+    <div onDragOver={killDragOverDefault} key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
+    <div  onDragOver={killDragOverDefault}className='z-10 w-full bg-black h-full border-b border-gray-900 flex flex-row'>
         <div ref={trackRef}  draggable onDragEnd={handleDragEndResetXBound} onDrag={handleMoveTrack}  onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`, marginLeft: `${i.edits.offsetFromStart}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>
                 <path strokeWidth={2} d={pathData}></path>

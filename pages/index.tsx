@@ -314,7 +314,7 @@ return (
         </div>
         </div>
         
-        <div className='w-full h-full flex flex-row'>
+        <div className='w-full h-full flex flex-row' onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>e.preventDefault()}>
 
             <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-auto`}>
 
