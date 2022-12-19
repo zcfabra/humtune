@@ -15,6 +15,7 @@ import * as Tone from "tone"
 import SynthPanel from '../components/panel'
 import SamplePanel from '../components/samplepanel'
 import TrackView from '../components/trackview';
+import { Router, useRouter } from 'next/router';
 const useIsPlaying = ()=>{
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   return {
@@ -61,8 +62,9 @@ export const stopTheWorld = (tracks: Track<AudioBuffer | SynthPack>[]) => {
   Tone.Transport.seconds = Tone.Time(0).toSeconds();
   // isPlayingUsed.setIsPlaying(false);
   return;
-}
+};
 
+export const  MODEL_ENDPOINT = "https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/";
 
 const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
@@ -77,14 +79,22 @@ const Home: NextPage = () => {
   const [selected, setSelected] = useState<number | null>(null);
   const selectedRef = useRef<number | null>(null)
   const [globalContext, setGlobalContext] = useState<AudioContext>();
-
+  const [selectedInstrument, setSelectedInstrument] = useState<string>("trumpet");
   useEffect(()=>{
     if (bpm != undefined){
       Tone.Transport.bpm.value= bpm;
     }
 
   }, [bpm]);
-  
+  const router = useRouter();
+  const handleNewModel = async (instrument: string)=>{
+    if (router.isReady && navigator != undefined){
+      const {DDSP} = await import("@magenta/music");
+      let newModel = new DDSP(MODEL_ENDPOINT+ instrument.toLowerCase());
+      await newModel.initialize();
+      setDdspModel(newModel);
+    }
+  }
   
 
   useEffect(()=>{
@@ -109,7 +119,7 @@ const Home: NextPage = () => {
     (async ()=>{
       const {SPICE, DDSP} = await import("@magenta/music");
       const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
-      const ddsp = new DDSP("https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/trumpet");
+      const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
       await ddsp.initialize();
       console.log(ddsp)
       setDdspModel(ddsp);
@@ -434,7 +444,7 @@ return (
             <TrackView playAll={playAll}setBpm={setBpm} selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel selectedInstrument={"Trumpet"} net={net}selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel setSelectedInstrument={setSelectedInstrument} handleNewModel={handleNewModel} selectedInstrument={"trumpet"} net={net}selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
             {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>
