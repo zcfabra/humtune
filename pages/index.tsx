@@ -16,6 +16,7 @@ import SynthPanel from '../components/panel'
 import SamplePanel from '../components/samplepanel'
 import TrackView from '../components/trackview';
 import { Router, useRouter } from 'next/router';
+import { booleanMaskAsync } from '@tensorflow/tfjs';
 const useIsPlaying = ()=>{
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   return {
@@ -229,6 +230,7 @@ const addAudioElement = async (blob: Blob)=>{
     let newAudioBufferTrack: Track<AudioBuffer> = {
       data: audbuf,
       originalData: originalAudBuf,
+      hasBeenAltered: false,
       soundMaker: player,
       edits: {
         offsetFromStart: 0,
@@ -269,7 +271,8 @@ const net = async ()=>{
       setTracks(prev=>{
         prev[selected!].data = newAudioBuffer;
         let toneAudBuf = new Tone.ToneAudioBuffer(newAudioBuffer);
-        (prev[selected!].soundMaker as Tone.Player).buffer = toneAudBuf 
+        (prev[selected!].soundMaker as Tone.Player).buffer = toneAudBuf ;
+        (prev[selected!].hasBeenAltered) = true;
         return [...prev]; 
       })
     }
@@ -428,7 +431,7 @@ return (
       <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
         <div className='absolute top-0 left-0 w-full h-24 border-b border-gray-900 flex flex-row justify-between items-center'>
           <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
-            <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-white transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
+            <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-gray-200 transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
             <AudioRecorder onRecordingComplete={addAudioElement} />
             {/* {selected != null && tracks[selected].data instanceof AudioBuffer && tracks.length != 0 && <button onClick={net} className='mx-4 w-32 h-12 bg-orange-500 rounded-md text-white'>Apply</button>} */}
 
