@@ -79,8 +79,11 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
         console.log("XBoundResize", xBoundResize);
         console.log("XBoundTrack", xBoundTrack)
         console.log("DIFF",diff)
+        
+        let calculated_offset = e.pageX - (firstDragPoint - xBoundTrack!) - leftToggleRef.current?.getBoundingClientRect().width!;
+
         setTracks(prev=>{
-            prev[ix].edits.offsetFromStart = e.pageX - (firstDragPoint - xBoundTrack!) - leftToggleRef.current?.getBoundingClientRect().width! ;
+            prev[ix].edits.offsetFromStart = calculated_offset < 0 ? 0:calculated_offset ;
             return [...prev];
         })
     }

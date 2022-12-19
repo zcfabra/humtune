@@ -6,16 +6,17 @@ import * as Tone from "tone"
 import { handleClientScriptLoad } from 'next/script';
 import { INSTRUMENTMAP, instruments } from '../typesandconsts';
 import { isPlayingContext } from '../pages';
-import { stopTheWorld } from './trackview';
+import { stopTheWorld } from '../pages/index';
 
 interface PanelProps{
     selected: number,
     tracks: Track<MidiNoteSequence| AudioBuffer>[],
     setTracks: React.Dispatch<React.SetStateAction<Track<MidiNoteSequence | AudioBuffer>[]>>,
+    bpm: number,
 
 }
 
-const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
+const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => {
     const isPlayingUsed = useContext(isPlayingContext);
 
 
@@ -114,6 +115,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
         console.log(e.target.value);
         setTracks(prev=>{
             prev[selected].tempo = TEMPOS[e.target.value as keyof object];
+            (prev[selected].data as MidiNoteSequence).duration = (prev[selected] as Track<MidiNoteSequence>).timesToLoop! * Tone.Time(TEMPOS[e.target.value as keyof object]).toSeconds() * 16
             return [...prev]
         })
     }
@@ -122,6 +124,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks}) => {
         console.log(e.target.value)
         setTracks(prev=>{
             prev[selected].timesToLoop = Number(e.target.value);
+            (prev[selected].data as MidiNoteSequence).duration = Number(e.target.value) * Tone.Time(prev[selected].tempo).toSeconds() * 16;
             return [...prev]
         })
     }

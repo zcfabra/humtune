@@ -4,7 +4,7 @@ import * as Tone from "tone";
 
 export type MidiNoteSequence={
     data: (string | null)[],
-    readonly duration: number;
+    duration: number;
     // readonly length: number;
     // readonly numberOfChannels: number;
     // readonly sampleRate: number;
@@ -51,7 +51,7 @@ export interface Track<T>{
     data: AudioBuffer | MidiNoteSequence,
     soundMaker: SynthPack | Tone.Player,
     tempo?: string,
-    timesToLoop?: number
+    timesToLoop?: number,
     edits:{
         trimStart: number ,
         trimEnd: number ,
