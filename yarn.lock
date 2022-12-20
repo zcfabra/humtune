@@ -10,12 +10,12 @@
     "core-js-pure" "^3.25.1"
     "regenerator-runtime" "^0.13.10"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.9", "@babel/runtime@^7.20.1":
-  "integrity" "sha512-mrzLkl6U9YLF8qpqI7TB82PESyEGjm/0Ly91jG575eVxMMlb8fYfOXFZIJ8XfLrJZQbm7dlKry2bJmXBUEkdFg=="
-  "resolved" "https://registry.npmjs.org/@babel/runtime/-/runtime-7.20.1.tgz"
-  "version" "7.20.1"
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.9", "@babel/runtime@^7.20.6":
+  "integrity" "sha512-Q+8MqP7TiHMWzSfwiJwXCjyf4GYA4Dgw3emg/7xmwsdLJOZUp+nMqcOwOzzYheuM1rhDu8FSj2l0aoMygEuXuA=="
+  "resolved" "https://registry.npmjs.org/@babel/runtime/-/runtime-7.20.6.tgz"
+  "version" "7.20.6"
   dependencies:
-    "regenerator-runtime" "^0.13.10"
+    "regenerator-runtime" "^0.13.11"
 
 "@eslint/eslintrc@^1.3.3":
   "integrity" "sha512-uj3pT6Mg+3t39fvLrj8iuCIJ38zKO9FpGtJ4BBJebJhEwjoT+KLVNCcHT5QC9NGRIEi7fZ0ZR8YRb884auB4Lg=="
@@ -51,8 +51,9 @@
   "resolved" "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   "version" "1.2.1"
 
-"@magenta/music@github:zcfabra/magenta-js#main":
-  "resolved" "git+ssh://git@github.com/zcfabra/magenta-js.git#e6649b6c6698a3ba8b66769809620c684bb8e901"
+"@magenta/music@^1.23.1":
+  "integrity" "sha512-MKIf5nU5fJg/j0y+zCeuQuhA5D4TD0hWv+crOpNQLq7TRJ5GQnlz4WuShYzSw/gXj2ncWuYGr6ftP9DvqSsQkA=="
+  "resolved" "https://registry.npmjs.org/@magenta/music/-/music-1.23.1.tgz"
   "version" "1.23.1"
   dependencies:
     "@tensorflow/tfjs" "^2.7.0"
@@ -64,7 +65,6 @@
     "staffrender" "^0.2.1"
     "tonal" "^2.0.0"
     "tone" "^14.7.58"
-    "tsc" "^2.0.4"
 
 "@next/env@13.0.3":
   "integrity" "sha512-/4WzeG61Ot/PxsghXkSqQJ6UohFfwXoZ3dtsypmR9EBP+OIax9JRq0trq8Z/LCT9Aq4JbihVkaazRWguORjTAw=="
@@ -600,12 +600,12 @@
   "resolved" "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   "version" "0.4.0"
 
-"automation-events@^4.0.24":
-  "integrity" "sha512-v/c//VCE1TGU3R56cyTFnebXFR3NOOx5Kiuaz7TXwLGpYMp9VgKCwelODRW3ZZ5TP2OFymfrWsvNVuPSi6vVPQ=="
-  "resolved" "https://registry.npmjs.org/automation-events/-/automation-events-4.0.24.tgz"
-  "version" "4.0.24"
+"automation-events@^4.0.25":
+  "integrity" "sha512-er1qdVevDNfZIQt18B31GyVX/D98tI0ztZ3z/VU6PBT0hTF8Emodl8e452k2VYdoiSTvDk0xaah7MC7AfoaZfA=="
+  "resolved" "https://registry.npmjs.org/automation-events/-/automation-events-4.0.25.tgz"
+  "version" "4.0.25"
   dependencies:
-    "@babel/runtime" "^7.20.1"
+    "@babel/runtime" "^7.20.6"
     "tslib" "^2.4.1"
 
 "autoprefixer@^10.4.13":
@@ -2353,10 +2353,10 @@
   dependencies:
     "picomatch" "^2.2.1"
 
-"regenerator-runtime@^0.13.10", "regenerator-runtime@^0.13.5":
-  "integrity" "sha512-KepLsg4dU12hryUO7bp/axHAKvwGOCV0sGloQtpagJ12ai+ojVDqkeGSiRX1zlq+kjIMZ1t7gpze+26QqtdGqw=="
-  "resolved" "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.10.tgz"
-  "version" "0.13.10"
+"regenerator-runtime@^0.13.10", "regenerator-runtime@^0.13.11", "regenerator-runtime@^0.13.5":
+  "integrity" "sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg=="
+  "resolved" "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz"
+  "version" "0.13.11"
 
 "regexp.prototype.flags@^1.4.3":
   "integrity" "sha512-fjggEOO3slI6Wvgjwflkc4NFRCTZAu5CnNfBd5qOMYhWdn67nJBBu34/TkD++eeFmd8C9r9jfXJ27+nSiRkSUA=="
@@ -2543,12 +2543,12 @@
   "version" "0.2.1"
 
 "standardized-audio-context@^25.1.8":
-  "integrity" "sha512-61KBkor9fOsMEl3NZllnis8KDmTJzonuuW8h6JBmxXXcUDucypGCJp+hlbyKG+olav8wgA+VKlqFmiJEbh4CfA=="
-  "resolved" "https://registry.npmjs.org/standardized-audio-context/-/standardized-audio-context-25.3.35.tgz"
-  "version" "25.3.35"
+  "integrity" "sha512-I3+jpIQP2PdGDrAx9Cf4/atC92PbJt+ejLUA/mwBx3OgyEStKC57D/wTce2K3PeJBbXJ0w//I99PZTBJrpxg/A=="
+  "resolved" "https://registry.npmjs.org/standardized-audio-context/-/standardized-audio-context-25.3.36.tgz"
+  "version" "25.3.36"
   dependencies:
-    "@babel/runtime" "^7.20.1"
-    "automation-events" "^4.0.24"
+    "@babel/runtime" "^7.20.6"
+    "automation-events" "^4.0.25"
     "tslib" "^2.4.1"
 
 "static-eval@~0.2.0":
@@ -2826,11 +2826,6 @@
   "integrity" "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw=="
   "resolved" "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   "version" "0.0.3"
-
-"tsc@^2.0.4":
-  "integrity" "sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q=="
-  "resolved" "https://registry.npmjs.org/tsc/-/tsc-2.0.4.tgz"
-  "version" "2.0.4"
 
 "tsconfig-paths@^3.14.1":
   "integrity" "sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ=="
