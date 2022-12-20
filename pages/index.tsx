@@ -44,16 +44,16 @@ export const stopTheWorld = (tracks: Track<AudioBuffer | SynthPack>[]) => {
         (track.soundMaker as Tone.DuoSynth).voice0.oscillator.stop();
         (track.soundMaker as Tone.DuoSynth).voice1.oscillator.stop();
       } else {
-        console.log(track.soundMaker.get());
-        console.log(track.soundMaker.numberOfInputs);
-        console.log(track.soundMaker.numberOfOutputs);
+        // console.log(track.soundMaker.get());
+        // console.log(track.soundMaker.numberOfInputs);
+        // console.log(track.soundMaker.numberOfOutputs);
         // Volume -> Gain
 
       }
     }
   }
 
-  console.log("NOW IN PAUSE: ", Tone.Transport.now(), Tone.now());
+  // console.log("NOW IN PAUSE: ", Tone.Transport.now(), Tone.now());
   // for (let ev of scheduledEvents) {
   //     Tone.Transport.clear(ev);
 
@@ -110,7 +110,7 @@ const Home: NextPage = () => {
   useEffect(()=>{
     setBpm(Tone.Transport.bpm.value)
      document.addEventListener("keydown", (e)=>{
-      console.log(e.key)
+      // console.log(e.key)
       if (e.key == "Del" || e.key == "Backspace" || e.key == "Delete"){
         // console.log("SELECTEC:",selectedRef.current)
         if (selectedRef.current != null){
@@ -127,15 +127,15 @@ const Home: NextPage = () => {
       const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
       const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
       await ddsp.initialize();
-      console.log(ddsp)
+      // console.log(ddsp)
       setDdspModel(ddsp);
       await spice.initialize() 
       setModel(spice);
-      console.log(spice);
+      // console.log(spice);
   })();
     if (tracks.length == 0) {
 
-      console.log(Tone.Transport.bpm.value);
+      // console.log(Tone.Transport.bpm.value);
       let notes: (string | null)[] = [...Array(16)].map(i => null);
       let toDeploy = ["G2", "C2", "D2", "E2"];
       let x=0;
@@ -219,10 +219,10 @@ const Home: NextPage = () => {
 const [soundInput, setSoundInput] = useState<string | null>();
 
 const addAudioElement = async (blob: Blob)=>{
-  console.log("*****")
+  // console.log("*****")
   let buf = await blob.arrayBuffer();
   let audbuf =  await Tone.context.decodeAudioData(buf);
-  console.log("AUDIO BUFFER: ", audbuf);
+  // console.log("AUDIO BUFFER: ", audbuf);
   const player = new Tone.Player().toDestination();
   const originalAudBuf = await Tone.context.createBuffer(audbuf.numberOfChannels, audbuf.length, audbuf.sampleRate);
   copyFromBufToBuf(audbuf, originalAudBuf);
@@ -245,15 +245,15 @@ const addAudioElement = async (blob: Blob)=>{
 
 const net = async ()=>{
   if (!(tracks[selected!].data instanceof AudioBuffer)){
-    console.log('PLOW')
+    // console.log('PLOW')
     return;
   } else {
-    console.log("got here")
+    // console.log("got here")
   const features= await model?.getAudioFeatures(tracks[selected!].data as AudioBuffer);
   const out = await ddspModel?.synthesize(features);
 // let out = "hi"
   if (out == undefined){
-    console.log("BAILED");
+    // console.log("BAILED");
     return;}
     if ("sampleRate" in tracks[selected!].data){
       // setTracks(prev=>{
@@ -297,9 +297,9 @@ const hanldeNewPianoRollTrack = ()=>{
 }
 
 useEffect(()=>{
-  console.log(selected)
-  console.log(tracks)
-  console.log(selected != null && isMidiSequence(tracks[selected]))
+  // console.log(selected)
+  // console.log(tracks)
+  // console.log(selected != null && isMidiSequence(tracks[selected]))
   if (selected !=null){
     if (isMidiSequence(tracks[selected])){
       setShowPianoRoll(true);
@@ -310,7 +310,7 @@ useEffect(()=>{
   }
 }, [selected])
 useEffect(()=>{
-  console.log(tracks)
+  // console.log(tracks)
 },[tracks]);
 
 // const isPlayingInit = useIsPlaying();
@@ -335,35 +335,35 @@ useEffect(()=>{
     }
 
 
-    console.log("TIMES:\nTone.now():", Tone.now(), " \n Tone.Transport():", Tone.Transport.now());
-    console.log("Synced?", Tone.now() == Tone.Transport.now());
+    // console.log("TIMES:\nTone.now():", Tone.now(), " \n Tone.Transport():", Tone.Transport.now());
+    // console.log("Synced?", Tone.now() == Tone.Transport.now());
     for (let track of tracks) {
       if (track.data instanceof AudioBuffer) {
         let id = Tone.Transport.scheduleOnce((time) => {
 
-          console.log("HERE IN RECORDED:");
+          // console.log("HERE IN RECORDED:");
           let diff = Tone.Transport.now() - track.soundMaker.now();
-          console.log("DIFF: ", diff);
-          console.log("Time in callback: ", time);
-          console.log("Time of Tone.now()", Tone.now());
-          console.log("Time of Player.now()", track.soundMaker.now());
-          console.log("Time of Tone.Transport.now()", Tone.Transport.seconds);
+          // console.log("DIFF: ", diff);
+          // console.log("Time in callback: ", time);
+          // console.log("Time of Tone.now()", Tone.now());
+          // console.log("Time of Player.now()", track.soundMaker.now());
+          // console.log("Time of Tone.Transport.now()", Tone.Transport.seconds);
           let start_time = diff == 0 ? time : time - diff;
-          console.log(Tone.Time(Tone.Time("4n").toSeconds() + Tone.Time((track.edits.offsetFromStart / 18 / 2)).toSeconds()).toSeconds());
+          // console.log(Tone.Time(Tone.Time("4n").toSeconds() + Tone.Time((track.edits.offsetFromStart / 18 / 2)).toSeconds()).toSeconds());
           (track.soundMaker as Tone.Player).start(Tone.Time(start_time + ((track.edits.offsetFromStart / 18 / 2))).toSeconds(), 0).stop(Tone.Time(start_time + Tone.Time((track.edits.offsetFromStart / 18 / 2) + track.data.duration + (track.edits.trimEnd / 18 / 2)).toSeconds()).toSeconds());
         }, 0);
         // setScheduledEvents(prev => [...prev, id])
 
       } else if (isMidiSequence(track)) {
         let id = Tone.Transport.scheduleOnce((time) => {
-          console.log("HERE IN SYNTH:");
+          // console.log("HERE IN SYNTH:");
           let diff = Tone.Transport.now() - track.soundMaker.now();
-          console.log("DIFF: ", diff);
+          // console.log("DIFF: ", diff);
 
-          console.log("Time of callback", time);
-          console.log("Tone of Synth.now()", track.soundMaker.now());
-          console.log("Time of Tone.now()", Tone.now());
-          console.log("Time of Tone.Transport.now()", Tone.Transport.seconds);
+          // console.log("Time of callback", time);
+          // console.log("Tone of Synth.now()", track.soundMaker.now());
+          // console.log("Time of Tone.now()", Tone.now());
+          // console.log("Time of Tone.Transport.now()", Tone.Transport.seconds);
           let start_time = diff == 0 ? time : time - diff;
 
           let offset = Tone.Time(0).toSeconds();
@@ -372,7 +372,7 @@ useEffect(()=>{
 
             for (let note of (track.data as MidiNoteSequence).data) {
               if (note != null) {
-                console.log("TIME WITH OFFSET",Tone.Time("4n").toSeconds() + track.edits.offsetFromStart / 18 * Tone.Time("4n").toSeconds());
+                // console.log("TIME WITH OFFSET",Tone.Time("4n").toSeconds() + track.edits.offsetFromStart / 18 * Tone.Time("4n").toSeconds());
                 (track.soundMaker as SynthPack).triggerAttackRelease(note, Tone.Time(track.tempo!).toSeconds(), Tone.Time("4n").toSeconds() + track.edits.offsetFromStart /18 * Tone.Time("4n").toSeconds() + offset);
               }
               offset += Tone.Time(track.tempo).toSeconds();
@@ -386,10 +386,10 @@ useEffect(()=>{
       stopTheWorld(tracks);
       isPlayingUsed.setIsPlaying(false);
     }, 0 + Tone.Time(max).toSeconds() + Tone.Time("4n").toSeconds())
-    console.log("starting", Tone.context.state)
+    // console.log("starting", Tone.context.state)
     await Tone.context.resume();
     Tone.start();
-    console.log("starting", Tone.context.state);
+    // console.log("starting", Tone.context.state);
     isPlayingUsed.setIsPlaying(true);
     Tone.Transport.start();
 
@@ -450,7 +450,7 @@ return (
         
         <div className='w-full h-full flex flex-row' onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>e.preventDefault()}>
 
-            <div className={`transition-all ${selected == null ? "w-full h-full" : "w-9/12 h-4/6"} overflow-y-auto`}>
+            <div className={`transition-all ${selected == null ? "w-full" : "w-9/12 "} ${selected == null ? "h-full": tracks[selected!].data instanceof AudioBuffer ?"h-full" : "h-4/6"} overflow-y-auto`}>
 
             <TrackView playAll={playAll}setBpm={setBpm} selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>

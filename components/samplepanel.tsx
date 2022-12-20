@@ -34,7 +34,7 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
     setIsLoading(false);
   };
   const handleChangeModel = async(instrument:string)=>{
-    console.log(instrument)
+    // console.log(instrument)
     flushSync(()=>{
       setIsModelLoading(true);
     });
@@ -44,7 +44,7 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
 
   }
   useEffect(()=>{
-    console.log("CHANGEd");
+    // console.log("CHANGEd");
     setIsLoading(false);
   }, [track]);
   const handleRevertTrack = ()=>{
@@ -55,9 +55,9 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
     })
   }
   return (
-    <div className='w-full text-white flex flex-col mt-28 space-y-2 flex-1'>
+    <div className='w-full h-full border border-gray-900 text-white flex flex-col flex-1 p-8'>
       <span>Instrument</span>
-      <select  onChange={async (e)=>await handleChangeModel(e.target.value)} className='w-10/12 h-12 border-white border rounded-md p-2 text-white bg-black' name="Instrument..." id="">
+      <select   onChange={async (e)=>await handleChangeModel(e.target.value)} className='w-10/12 mt-2 mb-2 h-12 border-white border rounded-md p-2 text-white bg-black' name="Instrument..." id="">
         <option value="trumpet">Trumpet</option>
         <option value="violin">Violin</option>
         <option value="tenor_saxophone">Tenor Saxophone</option>
@@ -69,13 +69,15 @@ const SamplePanel: React.FC<SamplePanelProps> = ({track, setTracks, selected, se
       {!isModelLoading && <button onClick={handleApplyInstrument} className='mb-8 w-10/12 h-12 rounded-md flex flex-row items-center justify-center bg-orange-500'>{isLoading
       ?
         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg> 
       : <span>Apply</span>}</button>}
       { track.hasBeenAltered && <button onClick={handleRevertTrack} className='w-10/12 h-12 rounded-md bg-black border-orange-500 border hover:bg-orange-500 text-orange-500 hover:text-white cursor-pointer transition-all'>Remove All</button>}
-      <span className=''>Volume</span>
-      <input className='accent-purple-500 h-2 appearance-none bg-purple-900 rounded-md ' value={track.soundMaker.volume.value} onChange={handleVolumeChange} type="range" min ={-20} step={0.1} max={20} />
+      <div className='w-full flex flex-col'>
+        <span className=''>Volume</span>
+        <input className='accent-purple-500 h-2 appearance-none bg-purple-900 rounded-md ' value={track.soundMaker.volume.value} onChange={handleVolumeChange} type="range" min ={-20} step={0.1} max={20} />
+      </div>
     </div>
   )
 }

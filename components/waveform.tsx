@@ -26,7 +26,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
     useEffect(()=>{
         handleWaveform();
-        console.log("POP:",trackResizeRef.current?.getBoundingClientRect().x);
+        // console.log("POP:",trackResizeRef.current?.getBoundingClientRect().x);
         setXBoundResize(trackRef.current?.getBoundingClientRect().width);
         setXBoundTrack(trackRef.current?.getBoundingClientRect().x);
     }, []);
@@ -38,11 +38,11 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
 
     const handleDragTrimEnd = (e: React.DragEvent<HTMLDivElement>)=>{
-        console.log(i.data.duration * 2 *18)
+        // console.log(i.data.duration * 2 *18)
         // let trim = e.pageX - xBoundResize!;
         let trim = e.pageX - (xBoundTrack! + xBoundResize!)
-        console.log("TRIM: ",trim);
-        console.log("X", trackResizeRef.current?.getBoundingClientRect().x);
+        // console.log("TRIM: ",trim);
+        // console.log("X", trackResizeRef.current?.getBoundingClientRect().x);
         if (trim < 0 && Math.abs(trim) < (i.data.duration) * 2 * 18) {
 
             setTracks(prev=>{
@@ -58,7 +58,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
 
     const handleDragEndResetXBound = (e: React.DragEvent<HTMLDivElement>)=>{
         e.preventDefault();
-        console.log("RESET")
+        // console.log("RESET");
         // setXBoundResize(_=>trackResizeRef.current?.getBoundingClientRect().x);
         // setXBoundTrack(_=>i.edits.offsetFromStart);
         setXBoundTrack(trackRef.current?.getBoundingClientRect().x);
@@ -73,13 +73,13 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
         }
 
         let diff =  e.pageX - firstDragPoint!;
-        console.log("TRACK WIDTH", trackRef.current?.getBoundingClientRect().width);
+        // console.log("TRACK WIDTH", trackRef.current?.getBoundingClientRect().width);
         // console.log("TOGGLE WIDTH",leftToggleRef.current?.getBoundingClientRect().width);
-        console.log("CURSOR", e.pageX)
-        console.log("FIRST DRAG", firstDragPoint)
-        console.log("XBoundResize", xBoundResize);
-        console.log("XBoundTrack", xBoundTrack)
-        console.log("DIFF",diff)
+        // console.log("CURSOR", e.pageX)
+        // console.log("FIRST DRAG", firstDragPoint)
+        // console.log("XBoundResize", xBoundResize);
+        // console.log("XBoundTrack", xBoundTrack)
+        // console.log("DIFF",diff)
         
         let calculated_offset = e.pageX - (firstDragPoint - xBoundTrack!);
 
@@ -94,7 +94,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
     }
 
     const killDragOverDefault = (e: React.DragEvent<HTMLDivElement>)=>{
-        console.log("DRAG OVER")
+        // console.log("DRAG OVER")
         e.preventDefault();
     }
 

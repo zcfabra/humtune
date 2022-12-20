@@ -23,7 +23,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
         let out = "";
         let h = 10
         let w = 0;
-        console.log("IDATA:", seq.data)
+        // console.log("IDATA:", seq.data)
         for (let bar = 0; bar < i.timesToLoop!; bar++){
 
         

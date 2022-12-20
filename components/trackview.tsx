@@ -28,7 +28,7 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
     // const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const isPlayingUsed = useContext(isPlayingContext);
     const killDragOver = (e: React.DragEvent<HTMLDivElement>)=>{
-        console.log("YO YO");
+        // console.log("YO YO");
         e.preventDefault();
         e.stopPropagation();
 

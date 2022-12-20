@@ -7,12 +7,12 @@ export const generatePathData = (audbuf: AudioBuffer) : string=>{
    for (let x = 0; x < numChannels; x++){
        channelsOut.push(audbuf.getChannelData(x));
    }
-   console.log("PRECHANNEL",channelsOut);
+//    console.log("PRECHANNEL",channelsOut);
    const peaks = channelsOut.reduce<number[]>(
        
         (mergedPeaks, channelData, ...args)=>{
-            console.log("CLOSURE CHANNEL DATA:", channelData);
-            console.log("CLOSURE MERGEDPEAKS:", mergedPeaks);
+            // console.log("CLOSURE CHANNEL DATA:", channelData);
+            // console.log("CLOSURE MERGEDPEAKS:", mergedPeaks);
             return _getPeaks(audbuf,channelData, mergedPeaks, ...args)
         },[]
 

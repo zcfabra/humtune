@@ -111,7 +111,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => 
 
 
     const handleSelectTempo = (e: React.ChangeEvent<HTMLSelectElement>)=>{
-        console.log(e.target.value);
+        // console.log(e.target.value);
         setTracks(prev=>{
             prev[selected].tempo = TEMPOS[e.target.value as keyof object];
             (prev[selected].data as MidiNoteSequence).duration = (prev[selected] as Track<MidiNoteSequence>).timesToLoop! * Tone.Time(TEMPOS[e.target.value as keyof object]).toSeconds() * 16
@@ -120,7 +120,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => 
     }
 
     const handleSetBars = (e: React.ChangeEvent<HTMLSelectElement>)=>{
-        console.log(e.target.value)
+        // console.log(e.target.value)
         setTracks(prev=>{
             prev[selected].timesToLoop = Number(e.target.value);
             (prev[selected].data as MidiNoteSequence).duration = Number(e.target.value) * Tone.Time(prev[selected].tempo).toSeconds() * 16;

@@ -36,11 +36,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, track, setTracks
         })
     }
     const handleGetNoteMidi = (ix: number)=>{
-        console.log(ix)
+        // console.log(ix)
     }
 
     const synthPlay = (note: string)=>{
-        console.log(track.soundMaker);
+        // console.log(track.soundMaker);
         (track.soundMaker as SynthPack).triggerAttackRelease(note, "8n", Tone.now())
     }
   return (
