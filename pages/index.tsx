@@ -536,8 +536,8 @@ const handleNet =  async (i: string)=>{
 return (
   <isPlayingContext.Provider value={isPlayingUsed}>
 
-      <div className='w-full h-screen bg-black flex flex-col items-center pt-24'>
-        <div className='absolute top-0 left-0 w-full h-24 border-b border-gray-900 flex flex-row justify-between items-center'>
+      <div className='w-screen h-screen fixed bg-black flex flex-col justify-start items-center pt-24 overflow-hidden'>
+        <div className='absolute top-0 left-0 w-screen h-24 border-b border-gray-900 flex flex-row justify-between items-center'>
           <div className=' top-0 left-0 ml-8 h-24 flex flex-row items-center justify-center'>
             <button onClick={() => hanldeNewPianoRollTrack()} className='w-10 h-10 bg-gray-200 transition-all hover:bg-orange-500 mr-4 rounded-[100%] text-black text-3xl flex flex-col items-center justify-center'>+</button>
             <AudioRecorder onRecordingComplete={addAudioElement} />
@@ -545,7 +545,7 @@ return (
 
           </div>
           <div className=' h-24  flex flex-row items-center text-orange-500'>
-            <button className='w-32 h-12 text-orange-500 rounded-md text-5xl' onClick={() => tracks.length > 0 && playAll()}>{!isPlayingUsed.isPlaying ? <span>&#9658;</span> : <span> &#9632;</span>}</button>
+          <button className='w-32 h-12 text-orange-500 rounded-md text-3xl' onClick={() => tracks.length > 0 && playAll()}>{!isPlayingUsed.isPlaying ? <span className='h-full'>{"\u25B6"}</span> : <span className='h-full'> &#9632;</span>}</button>
           </div>
           <div className='h-full flex items-center text-orange-500 px-4'>
             <button className=' text-3xl font-bold ' onClick={() => setBpm(prev => prev! > 0 ? prev! - 1 : prev)}>-</button><span className='text-white mx-4'>BPM: {bpm}</span><button className="text-3xl mx-2 font-orange-500 font-bold" onClick={() => setBpm(prev => prev! + 1)}>+</button>
@@ -556,7 +556,7 @@ return (
           </div> */}
         </div>
         
-        <div className='w-full h-full flex flex-row' onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>e.preventDefault()}>
+        <div className='w-screen h-full flex flex-row' onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>e.preventDefault()}>
 
             <div className={`transition-all ${selected == null ? "w-full" : "w-9/12 "} ${selected == null ? "h-full": tracks[selected!].data instanceof AudioBuffer ?"h-full" : "h-4/6"} overflow-y-auto`}>
 

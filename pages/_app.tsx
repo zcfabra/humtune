@@ -8,6 +8,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   <Head>
     <title>Humtune</title>
     <link rel="shortcut icon" href="/images/favicon.ico" />
+      <meta name="viewport" content="width=device-width, initial-scale=0.5"/>
   </Head>
   <Component {...pageProps} />
   </>
