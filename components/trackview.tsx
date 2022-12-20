@@ -7,6 +7,7 @@ import * as Tone from "tone"
 import { DEFAULT_SAMPLE_RATE, SynthPack, isPlayingContext } from '../pages';
 import { isMidiSequence } from '../utils';
 import MidiForm from './midiform';
+import uuid from "react-uuid"
 
 
 
@@ -54,13 +55,13 @@ const  TrackView: React.FC<TrackViewProps> = ({tracks, bpm, selected, setSelecte
                     </div>
                 })}
             </div> */}
-            <div  className='w-full ' onDrop={killDragOver}>
+            <div  className='w-full'  onDrop={killDragOver}>
                 {tracks.map((i, ix)=>{
                     return i.data instanceof AudioBuffer
                     ?
-                    <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={ix}/>
+                    <Waveform bpm={bpm} i={i} ix={ix} selected={selected} setTracks={setTracks} setSelected={setSelected} key={i.trackKey}/>
                     :
-                    <MidiForm setTracks={setTracks}i={i} ix={ix} selected={selected} setSelected={setSelected} key={ix}/>
+                    <MidiForm setTracks={setTracks}i={i} ix={ix} selected={selected} setSelected={setSelected} key={i.trackKey}/>
                 })}
             </div>
 

@@ -65,9 +65,9 @@ const _svgPaths = (peaks: any)=>{
 
    for (let p = 0; p < totalPeaks; p++){
     if (p%2 == 0){
-        data+= ` M${~~(p / 2)}, ${peaks.shift()*60+48}`;
+        data+= ` M${~~(p / 2)}, ${peaks.shift()*60+34}`;
     } else {
-        data += ` L${~~(p / 2)}, ${peaks.shift()*60 + 52}`
+        data += ` L${~~(p / 2)}, ${peaks.shift()*60 + 38}`
     }
    }
    return data;

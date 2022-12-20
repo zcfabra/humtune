@@ -123,7 +123,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => 
         // console.log(e.target.value)
         setTracks(prev=>{
             prev[selected].timesToLoop = Number(e.target.value);
-            (prev[selected].data as MidiNoteSequence).duration = Number(e.target.value) * Tone.Time(prev[selected].tempo).toSeconds() * 16;
+            // (prev[selected].data as MidiNoteSequence).duration = Number(e.target.value) * Tone.Time(prev[selected].tempo).toSeconds() * 16;
             return [...prev]
         })
     }

@@ -23,6 +23,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, track, setTracks
     //     var synth = new Tone.Synth().toDestination();
     //     setSynth(synth);
     // }, [])
+    const [tempSynth, setTempSynth] = useState<Tone.Synth>();
+
+    useEffect(()=>{
+        var synthStats = (track.soundMaker as SynthPack).get();
+        // console.log(synthStats)
+        let newSynth = new Tone.Synth().toDestination();
+        // newSynth.set(newNotes);
+        setTempSynth(newSynth)
+        // console.log(newNotes)
+    }, [])
     const handleSelectedNote = (ix:number, noteIx: number) =>{
         let copy = track.data;
         (copy as MidiNoteSequence).data[ix] = (copy as MidiNoteSequence).data[ix] == notes[noteIx] ? null : notes[noteIx]
@@ -35,13 +45,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, track, setTracks
             return [...prev]
         })
     }
-    const handleGetNoteMidi = (ix: number)=>{
-        // console.log(ix)
-    }
+
 
     const synthPlay = (note: string)=>{
-        // console.log(track.soundMaker);
-        (track.soundMaker as SynthPack).triggerAttackRelease(note, "8n", Tone.now())
+        tempSynth!.triggerAttackRelease(note, "8n", Tone.immediate());
     }
   return (
     <div className='w-full h-2/6 bg-black absolute bottom-0 flex flex-row overflow-y-scroll'>
@@ -58,7 +65,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({setShowPianoRoll, track, setTracks
         <div className='w-10/12 border-t border-gray-900'>
             <div className=' w-full h-12 flex flex-row'>
                 {[...Array(16)].map((i,ix)=>(
-                    <div onClick={()=>handleGetNoteMidi(ix)} key={ix}className={` h-full transition-all text-gray-500 hover:bg-orange-500 hover:text-white cursor-pointer w-[6.25%] ${ix %4 ==0 ?"bg-gray-800" : "bg-black"} border border-gray-900 p-2`}>
+                    <div  key={ix}className={` h-full transition-all text-gray-500 hover:bg-orange-500 hover:text-white  w-[6.25%] ${ix %4 ==0 ?"bg-gray-800" : "bg-black"} border border-gray-900 p-2`}>
                         <span className='select-none font-light  text-xl '>{ix + 1}</span>
                     </div>
                 ))}

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { MidiNoteSequence, notesMap, tempoWidth } from '../typesandconsts';
-import { notes } from '../typesandconsts';
+
 import { Track } from '../typesandconsts';
 interface MidiFormProps{
     ix: number,
@@ -18,7 +18,8 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
 
     useEffect(()=>{
         setXBoundTrack(trackRef!.current!.getBoundingClientRect().x);
-    }, [])
+    }, [ trackRef]);
+
     const generatePathData = (seq: MidiNoteSequence): string=>{
         let out = "";
         let h = 10
@@ -29,7 +30,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
         
             for (let x of seq.data){
                 if (x != null){
-                    let y = h + notesMap.get(x)! * 2.5
+                    let y = h + notesMap.get(x)! * 1.8;
                     out+=`M ${w},${y}`+`L${w+18 / (16/tempoWidth[i.tempo as keyof object])}, ${y}` 
                 }
                 w+=18 / (16/ tempoWidth[i.tempo as keyof object]);
@@ -52,12 +53,18 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
     const handleDragTrack = (e: React.DragEvent<HTMLDivElement>)=>{
     
         // e.dataTransfer.setDragImage(img, 0,0);
+        // console.log("FIRST DRAG POINT",firstDragPoint);
+        // console.log("XBOUND: ", xBoundTrack);
+        // console.log("PAGEX", e.pageX)
+
         if (firstDragPoint == null){
             setFirstDragPoint(e.pageX);
         } else {
             let diff = e.pageX - (firstDragPoint - xBoundTrack!);
+            // console.log("DIFF: ",diff);
+            let rounded = roundToNearest(18, diff);
             setTracks(prev=>{
-                prev[ix].edits.offsetFromStart = diff >= 0 ? roundToNearest(18 , diff) : 0;
+                prev[ix].edits.offsetFromStart =  diff >=0 ? rounded: 0;
                 return [...prev]
             })
         }
@@ -73,7 +80,7 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
   
 
     return (
-        <div key={ix} className='w-full h-28 bg-gray-900 flex flex-row items-center'>
+        <div key={ix} className='w-full h-20 bg-gray-900 flex flex-row items-center'>
        
         <div className='relative w-full bg-black h-full border-b border-gray-900'>
             <div ref={trackRef} draggable onDragEnd={handleDragEndReset} onDrag={handleDragTrack} onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{marginLeft: `${i.edits.offsetFromStart}px`,width: `${ (i.timesToLoop! * (18 * tempoWidth[i.tempo as keyof object]) + 1)}px`}} className={`h-full flex flex-row cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"}`}>

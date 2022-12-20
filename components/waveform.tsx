@@ -99,7 +99,7 @@ const Waveform: React.FC<WaveformProps> = ({i, setSelected, ix, selected, setTra
     }
 
   return (
-    <div onDragOver={killDragOverDefault} key={ix}className='w-full h-28 bg-gray-900 flex flex-row items-center'>
+    <div onDragOver={killDragOverDefault} key={ix}className='w-full h-20 bg-gray-900 flex flex-row items-center'>
     <div  onDragOver={killDragOverDefault}className='z-10 w-full bg-black h-full border-b border-gray-900 flex flex-row'>
         <div ref={trackRef}  draggable onDragEnd={handleDragEndResetXBound} onDrag={handleMoveTrack}  onClick={()=>setSelected(prev=>prev == ix ? null : ix)} style={{width: `${((i.data.duration) *2* 18) + i.edits!.trimEnd!}px`, marginLeft: `${i.edits.offsetFromStart}px`}} className={`h-full cursor-pointer  ${selected == ix ?"bg-purple-500" : "bg-orange-500"} flex resize flex-row `}>
             <svg className={`w-full stroke-black`}>

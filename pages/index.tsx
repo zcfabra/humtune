@@ -17,6 +17,8 @@ import SamplePanel from '../components/samplepanel'
 import TrackView from '../components/trackview';
 import { Router, useRouter } from 'next/router';
 import { booleanMaskAsync } from '@tensorflow/tfjs';
+import uuid from 'react-uuid';
+import { flushSync } from 'react-dom';
 const useIsPlaying = ()=>{
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   return {
@@ -76,6 +78,10 @@ const Home: NextPage = () => {
   const [model, setModel] = useState< SPICE>();
   const [ddspModel, setDdspModel] = useState<DDSP>();
   const isPlayingUsed = useIsPlaying();
+
+
+  const ddspModelRef = useRef<DDSP | null>(null);
+  const selectedInstrumentRef = useRef<string|null>(null);
   
   const [tracks, setTracks] = useState<Track<MidiNoteSequence | AudioBuffer>[]>([]);
   // const [resultBuffer, setResultBuffer] = useState<string | null>();
@@ -83,7 +89,7 @@ const Home: NextPage = () => {
   
   const [bpm, setBpm] = useState<number>();
   const [selected, setSelected] = useState<number | null>(null);
-  const selectedRef = useRef<number | null>(null)
+  const selectedRef = useRef<number | null>(null);
   const [globalContext, setGlobalContext] = useState<AudioContext>();
   const [selectedInstrument, setSelectedInstrument] = useState<string>("trumpet");
   useEffect(()=>{
@@ -93,12 +99,24 @@ const Home: NextPage = () => {
 
   }, [bpm]);
   const router = useRouter();
+  useEffect(()=>{
+    ddspModelRef.current = ddspModel!
+    // console.log("MODEL CHANGED")
+  }, [ddspModel]);
+  useEffect(()=>{
+    selectedInstrumentRef.current = selectedInstrument;
+    // console.log("Yo Yo",selectedInstrumentRef.current, selectedInstrument)
+  }, [selectedInstrument])
   const handleNewModel = async (instrument: string)=>{
+    // console.log("INSIDE HANDLE NEW MODEL", instrument, selectedInstrument)
     if (router.isReady && navigator != undefined){
+      // console.log("SHOULD BE HERE")
       const {DDSP} = await import("@magenta/music");
       let newModel = new DDSP(MODEL_ENDPOINT+ instrument.toLowerCase());
       await newModel.initialize();
-      setDdspModel(newModel);
+      flushSync(()=>{
+        setDdspModel(newModel);
+      })
     }
   }
   
@@ -149,11 +167,15 @@ const Home: NextPage = () => {
       }
       let seq: MidiNoteSequence = {
         data: notes,
-        duration: 1 / (Tone.Transport.bpm.value / 60) * 16
+        duration: Tone.Time(TEMPOS.EIGHTH).toSeconds() * 16
       };
       let synth = new Tone.DuoSynth().toDestination().sync();
-      synth.volume.value = -12;
+      synth.voice1.oscillator.type = "square";
+      synth.voice0.oscillator.type= "sawtooth25"
+      
+      synth.volume.value = -16;
       const trackToAdd: Track<MidiNoteSequence> = {
+        trackKey: uuid(),
         data: seq,
         soundMaker: synth,
         tempo: TEMPOS.EIGHTH,
@@ -164,7 +186,7 @@ const Home: NextPage = () => {
       let toDeploy2 = ["G2", "C2", "D2", "E2"];
       let x2 = 0;
       for (let i = 0; i < 16; i++) {
-        notes[i] = toDeploy[x2];
+        notes2[i] = toDeploy[x2];
         if (x2 == 3) {
           x2 = 0
         } else {
@@ -172,12 +194,16 @@ const Home: NextPage = () => {
         }
       };
       let synth2 = new Tone.MonoSynth().toDestination().sync();
+      synth2.volume.value = -4;
+      synth2.oscillator.type = 'sawtooth';
+      synth2.portamento = 0.2;
       let seq2: MidiNoteSequence = {
-        data: notes,
+        data: notes2,
         duration: Tone.Time(TEMPOS.WHOLE).toSeconds() * 16
       };
 
       const trackToAlsoAdd: Track<MidiNoteSequence> = {
+        trackKey: uuid(),
         data: seq2,
         soundMaker: synth2, 
         tempo: TEMPOS.WHOLE,
@@ -186,8 +212,10 @@ const Home: NextPage = () => {
       };
 
       let x3 = 0;
+      let notes3: (string | null)[] = [...Array(16)].map(i => null);
+
       for (let i = 0; i < 16; i++) {
-        notes[i] = toDeploy[x3];
+        notes3[i] = toDeploy[x3];
         if (x3 == 3) {
           x3 = 0
         } else {
@@ -195,28 +223,86 @@ const Home: NextPage = () => {
         }
       }
       let seq3: MidiNoteSequence = {
-        data: notes,
-        duration: 1 / (Tone.Transport.bpm.value / 60) * 16
+        data: notes3,
+        duration: Tone.Time(TEMPOS.EIGHTH).toSeconds() * 16
       };
       let synth3 = new Tone.FMSynth().toDestination().sync();
-      synth.volume.value = -12;
+      synth3.oscillator.type="sine"
+      synth3.volume.value = 0;
       const trackToAdd3: Track<MidiNoteSequence> = {
+        trackKey: uuid(),
         data: seq3,
         soundMaker: synth3,
         tempo: TEMPOS.EIGHTH,
         timesToLoop: 4,
         edits: { offsetFromStart: 18  * 2 * 16, trimEnd: 0, trimStart: 0 }
       };
+      let synth4 = new Tone.FMSynth().toDestination().sync();
+      synth4.oscillator.type= "fatcustom"
+      synth4.volume.value = -5;
+      let notes4: (string | null)[] = [...Array(16)].map(i => null);
+
+
+      x3 = 0;
+      let toDeployHigher = ["G4", "E4", null, "C4"];
+      for (let i = 0; i < 16; i++) {
+        notes4[i] = toDeployHigher[x3];
+        if (x3 == 3) {
+          x3 = 0
+        } else {
+          x3 += 1;
+        }
+      } 
+      let seq4 = {
+        data:notes4,
+        duration: Tone.Time(TEMPOS.HALF).toSeconds() * 16
+      }
+
+      const trackToAdd4: Track<MidiNoteSequence> = {
+        trackKey: uuid(),
+        data: seq4,
+        soundMaker: synth4,
+        tempo: TEMPOS.HALF,
+        timesToLoop: 1,
+        edits: {offsetFromStart: 18 * 2 * 16, trimEnd: 0, trimStart:0}
+      };
+
+      x3 = 0;
+      let notes5: (string | null)[] = [...Array(16)].map(i => null);
+
+      let toDeployAlternate= ["G4", "C4", "G4", "C4"]
+      for (let i = 0; i < 16; i++) {
+        notes5[i] = toDeployAlternate[x3];
+        if (x3 == 3) {
+          x3 = 0
+        } else {
+          x3 += 1;
+        }
+      } 
+
+      const seq5 = {
+        data: notes5,
+        duration: Tone.Time(TEMPOS.SIXTEENTH).toSeconds() * 16
+      };
+      let synth5 = new Tone.Synth().toDestination().sync();
+      synth5.volume.value = 1;
+      synth5.oscillator.type = "amtriangle12";
+      const trackToAdd5: Track<MidiNoteSequence> = {
+        trackKey: uuid(),
+        data: seq5,
+        soundMaker: synth5,
+        tempo: TEMPOS.SIXTEENTH,
+        timesToLoop: 4,
+        edits: {offsetFromStart: 18*3*16, trimEnd:0, trimStart:0}
+      }
 
       setTracks(prev => {
-        return [...prev, trackToAdd, trackToAlsoAdd, trackToAdd3];
+        return [...prev, trackToAdd, trackToAlsoAdd, trackToAdd3, trackToAdd4, trackToAdd5];
       });
       setSelected(1);
     }
     
   }, [])
-// https://storage.googleapis.com/magentadata/js/checkpoints/ddsp/trumpet/group1-shard1of1.bin
-const [soundInput, setSoundInput] = useState<string | null>();
 
 const addAudioElement = async (blob: Blob)=>{
   // console.log("*****")
@@ -228,9 +314,10 @@ const addAudioElement = async (blob: Blob)=>{
   copyFromBufToBuf(audbuf, originalAudBuf);
   setTracks(prev=>{
     let newAudioBufferTrack: Track<AudioBuffer> = {
+      trackKey: uuid(),
       data: audbuf,
       originalData: originalAudBuf,
-      hasBeenAltered: false,
+      hasBeenAltered: null,
       soundMaker: player,
       edits: {
         offsetFromStart: 0,
@@ -244,14 +331,15 @@ const addAudioElement = async (blob: Blob)=>{
 }
 
 const net = async ()=>{
+  console.log("INSIDE NET()", selectedInstrumentRef.current);
   if (!(tracks[selected!].data instanceof AudioBuffer)){
     // console.log('PLOW')
     return;
   } else {
     // console.log("got here")
   const features= await model?.getAudioFeatures(tracks[selected!].data as AudioBuffer);
-  const out = await ddspModel?.synthesize(features);
-// let out = "hi"
+  const out = await ddspModelRef.current?.synthesize(features);
+
   if (out == undefined){
     // console.log("BAILED");
     return;}
@@ -272,7 +360,7 @@ const net = async ()=>{
         prev[selected!].data = newAudioBuffer;
         let toneAudBuf = new Tone.ToneAudioBuffer(newAudioBuffer);
         (prev[selected!].soundMaker as Tone.Player).buffer = toneAudBuf ;
-        (prev[selected!].hasBeenAltered) = true;
+        (prev[selected!].hasBeenAltered) = selectedInstrumentRef.current;
         return [...prev]; 
       })
     }
@@ -282,11 +370,16 @@ const net = async ()=>{
 
 }
 const hanldeNewPianoRollTrack = ()=>{
-  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration: 1 / (bpm! / 60 )* 16  } 
+  let newMidiTrack: MidiNoteSequence = {data: [...Array(16)].map(i=>null), duration: Tone.Time(TEMPOS.QUARTER).toSeconds()*16  } 
   let priorLength = tracks.length;
   let synth = new Tone.Synth().toDestination().sync();
   synth.volume.value = -15;
-  setTracks(prev=>[...prev, {data: newMidiTrack,timesToLoop: 1 ,soundMaker: synth ,tempo: TEMPOS.QUARTER, edits:{
+  setTracks(prev=>[...prev, {
+    data: newMidiTrack,
+    trackKey:uuid(),
+    timesToLoop: 1 ,
+    soundMaker: synth ,
+    tempo: TEMPOS.QUARTER, edits:{
     trimEnd: 0,
     trimStart: 0,
     offsetFromStart: 0
@@ -329,8 +422,9 @@ useEffect(()=>{
 
     let max = 0;
     for (let each of tracks) {
-      if (each.data.duration > max) {
-        max = each.data.duration;
+      let newMax = (each.data.duration * (each.timesToLoop != undefined ? each.timesToLoop : 1)) + (each.edits.offsetFromStart / 18 / 2) + (each.edits.trimEnd / 18 / 2);
+      if (newMax > max) {
+        max = newMax;
       }
     }
 
@@ -350,7 +444,8 @@ useEffect(()=>{
           // console.log("Time of Tone.Transport.now()", Tone.Transport.seconds);
           let start_time = diff == 0 ? time : time - diff;
           // console.log(Tone.Time(Tone.Time("4n").toSeconds() + Tone.Time((track.edits.offsetFromStart / 18 / 2)).toSeconds()).toSeconds());
-          (track.soundMaker as Tone.Player).start(Tone.Time(start_time + ((track.edits.offsetFromStart / 18 / 2))).toSeconds(), 0).stop(Tone.Time(start_time + Tone.Time((track.edits.offsetFromStart / 18 / 2) + track.data.duration + (track.edits.trimEnd / 18 / 2)).toSeconds()).toSeconds());
+          // console.log(track.edits.trimEnd);
+          (track.soundMaker as Tone.Player).start(start_time + (track.edits.offsetFromStart / 18 / 2), 0).stop(start_time + (track.edits.offsetFromStart / 18 / 2) + (track.data.duration + track.edits.trimEnd / 18 / 2));
         }, 0);
         // setScheduledEvents(prev => [...prev, id])
 
@@ -423,6 +518,19 @@ type SaveType={
 //   link.click();
 // };
 
+const handleNet =  async (i: string)=>{
+  if (i != selectedInstrument){
+    let {DDSP} = await import("@magenta/music")
+    let newModel = new DDSP(MODEL_ENDPOINT + i);
+    await newModel.initialize();
+    flushSync(()=>{
+      setDdspModel(newModel);
+      setSelectedInstrument(i);
+    });
+  };
+
+  await net();
+}
 
 
 return (
@@ -455,7 +563,7 @@ return (
             <TrackView playAll={playAll}setBpm={setBpm} selected={selected} setSelected={setSelected} setTracks={setTracks} bpm={bpm!}globalContext={globalContext!}tracks={tracks}></TrackView>
             </div>
             {selected!= null && <div className='w-3/12'>
-              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel setSelectedInstrument={setSelectedInstrument} handleNewModel={handleNewModel} selectedInstrument={"trumpet"} net={net}selected={selected} setTracks={setTracks} track={tracks[selected]}/> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
+              {tracks[selected].data instanceof AudioBuffer ? <SamplePanel tracks={tracks} setSelectedInstrument={setSelectedInstrument} selectedInstrument={selectedInstrument} handleNet={handleNet} selected={selected} setTracks={setTracks} /> :<SynthPanel bpm={bpm!}setTracks={setTracks} tracks={tracks} selected={selected}/>}
               </div>} 
             {showPianoRoll && isMidiSequence(tracks[selected!]) && !(tracks[selected!] instanceof AudioBuffer)  && <PianoRoll selected={selected} track={tracks[selected!]} showPianoRoll={showPianoRoll} setTracks={setTracks} setShowPianoRoll={setShowPianoRoll}/>}
         </div>
