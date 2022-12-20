@@ -46,8 +46,12 @@ const MidiForm:React.FC<MidiFormProps> = ({ix, selected, setSelected, i, setTrac
     const roundToNearest = (n: number, toRound: number)=>{
         
         return Math.round(toRound / n) * n;
-    }
+    };
+    // var img = new Image();
+    // img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
     const handleDragTrack = (e: React.DragEvent<HTMLDivElement>)=>{
+    
+        // e.dataTransfer.setDragImage(img, 0,0);
         if (firstDragPoint == null){
             setFirstDragPoint(e.pageX);
         } else {
