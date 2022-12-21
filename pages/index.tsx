@@ -130,7 +130,10 @@ const Home: NextPage = () => {
 
     (async ()=>{
       const {SPICE, DDSP, tf} = await import("@magenta/music");
+      console.log(tf.getBackend());
       await tf.setBackend("webgl");
+      console.log(tf.getBackend());
+
 
         const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
         const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
@@ -329,6 +332,7 @@ const net = async ()=>{
     return;
   } else {
     // console.log("got here")
+    console.log(tracks[selected!].data);
   const features= await model?.getAudioFeatures(tracks[selected!].data as AudioBuffer);
   const out = await ddspModelRef.current?.synthesize(features);
 
@@ -513,7 +517,9 @@ type SaveType={
 const handleNet =  async (i: string)=>{
   if (i != selectedInstrument){
     let {DDSP,tf} = await import("@magenta/music");
+    console.log(tf.getBackend());
     await tf.setBackend("webgl")
+    console.log(tf.getBackend());
 
 
       let newModel = new DDSP(MODEL_ENDPOINT + i);
