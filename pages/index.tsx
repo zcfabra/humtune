@@ -111,7 +111,7 @@ const Home: NextPage = () => {
     // console.log("INSIDE HANDLE NEW MODEL", instrument, selectedInstrument)
     if (router.isReady && navigator != undefined){
       // console.log("SHOULD BE HERE")
-      const {DDSP} = await import("@magenta/music");
+      // const {DDSP} = await import("@magenta/music");
       let newModel = new DDSP(MODEL_ENDPOINT+ instrument.toLowerCase());
       await newModel.initialize();
       flushSync(()=>{
