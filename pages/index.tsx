@@ -145,11 +145,11 @@ const Home: NextPage = () => {
       const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
       const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
       await ddsp.initialize();
-      // console.log(ddsp)
+      console.log(ddsp)
       setDdspModel(ddsp);
       await spice.initialize() 
       setModel(spice);
-      // console.log(spice);
+      console.log(spice);
   })();
     if (tracks.length == 0) {
 
