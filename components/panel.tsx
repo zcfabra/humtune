@@ -153,7 +153,7 @@ const SynthPanel:React.FC<PanelProps> = ({selected, tracks, setTracks, bpm}) => 
             <span>Loop</span>
             <select value={tracks[selected].timesToLoop}  className=' bg-black border border-gray-300 text-white rounded-md w-8/12 h-12 px-2' onChange={handleSetBars} name="" id="">
                 {
-                [...Array(8)].map((i, ix)=>(
+                [...Array(16)].map((i, ix)=>(
                     <option value={i} key={ix}>{ix + 1}</option>
                 ))
             }
