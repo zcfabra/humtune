@@ -1,22 +1,21 @@
 import type { NextPage } from 'next'
-import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder'
-
+import { AudioRecorder } from 'react-audio-voice-recorder'
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
-import {DDSP, NoteSequence, SPICE} from "@magenta/music";
+import {DDSP, SPICE} from "@magenta/music";
 import { encodeWAV } from '../utils'
 import { TEMPOS, Track } from  "../typesandconsts"
 import PianoRoll from '../components/pianoroll'
 import { MidiNoteSequence } from '../typesandconsts'
 import { isMidiSequence } from '../utils'
 export const DEFAULT_SAMPLE_RATE = 44100;
+// import * as tf from "@tensorflow/tfjs";
 
 
 import * as Tone from "tone"
 import SynthPanel from '../components/panel'
 import SamplePanel from '../components/samplepanel'
 import TrackView from '../components/trackview';
-import { Router, useRouter } from 'next/router';
-import { booleanMaskAsync } from '@tensorflow/tfjs';
+import { useRouter } from 'next/router';
 import uuid from 'react-uuid';
 import { flushSync } from 'react-dom';
 const useIsPlaying = ()=>{
@@ -107,18 +106,7 @@ const Home: NextPage = () => {
     selectedInstrumentRef.current = selectedInstrument;
     // console.log("Yo Yo",selectedInstrumentRef.current, selectedInstrument)
   }, [selectedInstrument])
-  const handleNewModel = async (instrument: string)=>{
-    // console.log("INSIDE HANDLE NEW MODEL", instrument, selectedInstrument)
-    if (router.isReady && navigator != undefined){
-      // console.log("SHOULD BE HERE")
-      // const {DDSP} = await import("@magenta/music");
-      let newModel = new DDSP(MODEL_ENDPOINT+ instrument.toLowerCase());
-      await newModel.initialize();
-      flushSync(()=>{
-        setDdspModel(newModel);
-      })
-    }
-  }
+
   
 
   useEffect(()=>{
@@ -141,15 +129,19 @@ const Home: NextPage = () => {
      });
 
     (async ()=>{
-      const {SPICE, DDSP} = await import("@magenta/music");
-      const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
-      const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
-      await ddsp.initialize();
-      console.log(ddsp)
-      setDdspModel(ddsp);
-      await spice.initialize() 
-      setModel(spice);
-      console.log(spice);
+      const {SPICE, DDSP, tf} = await import("@magenta/music");
+      await tf.setBackend("webgl");
+
+        const spice =  new SPICE("https://tfhub.dev/google/tfjs-model/spice/2/default/1");
+        const ddsp = new DDSP(MODEL_ENDPOINT + "trumpet");
+        await ddsp.initialize();
+        console.log(ddsp)
+        setDdspModel(ddsp);
+        await spice.initialize() 
+        setModel(spice);
+        console.log(spice);
+
+      
   })();
     if (tracks.length == 0) {
 
@@ -331,7 +323,7 @@ const addAudioElement = async (blob: Blob)=>{
 }
 
 const net = async ()=>{
-  console.log("INSIDE NET()", selectedInstrumentRef.current);
+  // console.log("INSIDE NET()", selectedInstrumentRef.current);
   if (!(tracks[selected!].data instanceof AudioBuffer)){
     // console.log('PLOW')
     return;
@@ -520,13 +512,17 @@ type SaveType={
 
 const handleNet =  async (i: string)=>{
   if (i != selectedInstrument){
-    let {DDSP} = await import("@magenta/music")
-    let newModel = new DDSP(MODEL_ENDPOINT + i);
-    await newModel.initialize();
-    flushSync(()=>{
-      setDdspModel(newModel);
-      setSelectedInstrument(i);
-    });
+    let {DDSP,tf} = await import("@magenta/music");
+    await tf.setBackend("webgl")
+
+
+      let newModel = new DDSP(MODEL_ENDPOINT + i);
+      await newModel.initialize();
+      flushSync(()=>{
+        setDdspModel(newModel);
+        setSelectedInstrument(i);
+      });
+    
   };
 
   await net();
