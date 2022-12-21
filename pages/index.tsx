@@ -441,7 +441,7 @@ useEffect(()=>{
           let start_time = diff == 0 ? time : time - diff;
           // console.log(Tone.Time(Tone.Time("4n").toSeconds() + Tone.Time((track.edits.offsetFromStart / 18 / 2)).toSeconds()).toSeconds());
           // console.log(track.edits.trimEnd);
-          (track.soundMaker as Tone.Player).start(start_time + (track.edits.offsetFromStart / 18 / 2), 0).stop(start_time + (track.edits.offsetFromStart / 18 / 2) + (track.data.duration + track.edits.trimEnd / 18 / 2));
+          (track.soundMaker as Tone.Player).start(start_time + Tone.Time("4n").toSeconds() + (track.edits.offsetFromStart / 18 / 2), 0).stop(start_time + Tone.Time("4n").toSeconds() + (track.edits.offsetFromStart / 18 / 2) + (track.data.duration + track.edits.trimEnd / 18 / 2));
         }, 0);
         // setScheduledEvents(prev => [...prev, id])
 
